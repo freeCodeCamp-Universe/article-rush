@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Article Rush</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">
+    <h1>Article Rush</h1>
+    <p>a · an · the · nothing</p>
+  </div>
+
+  <div class="card">
+
+    <!-- ══ START SCREEN ══ -->
+    <div class="screen active" id="startScreen">
+      <div class="start-inner">
+        <h2>Ready to rush?</h2>
+        <p>Fill in the blank with the right article before time runs out.</p>
+        <div class="rules-box">
+          <div class="rule"><span class="rule-ico">📝</span><span>7 sentences per round</span></div>
+          <div class="rule"><span class="rule-ico">⭐</span><span>Earn 1–3 stars based on your score</span></div>
+          <div class="rule"><span class="rule-ico">💡</span><span>See explanations for every mistake after each round</span></div>
+        </div>
+        <div class="time-section">
+          <div class="time-label">CEFR Level</div>
+          <div class="time-picker">
+            <button class="cefr-btn"     data-level="1" onclick="setLevel(1)">A1</button>
+            <button class="cefr-btn"     data-level="2" onclick="setLevel(2)">A2</button>
+            <button class="cefr-btn sel" data-level="3" onclick="setLevel(3)">B1</button>
+            <button class="cefr-btn"     data-level="4" onclick="setLevel(4)">B2</button>
+            <button class="cefr-btn"     data-level="5" onclick="setLevel(5)">C1</button>
+            <button class="cefr-btn"     data-level="6" onclick="setLevel(6)">C2</button>
+          </div>
+        </div>
+        <div class="time-section">
+          <div class="time-label">Time per sentence</div>
+          <div class="time-picker">
+            <button class="time-btn sel" data-secs="5"  onclick="setTime(5)">5 s</button>
+            <button class="time-btn"     data-secs="10" onclick="setTime(10)">10 s</button>
+            <button class="time-btn"     data-secs="15" onclick="setTime(15)">15 s</button>
+            <button class="time-btn"     data-secs="0"  onclick="setTime(0)">∞</button>
+          </div>
+        </div>
+        <button class="btn-cta" onclick="startRound()">Start Round →</button>
+        <button class="btn-theory-link" onclick="openTheory()">Article rules reference</button>
+        <div class="lang-section">
+          <div class="time-label">Practice Language</div>
+          <div class="lang-picker">
+            <button class="lang-btn sel" data-lang="en" onclick="setLang('en')"><span class="lang-flag">🇺🇸</span><span class="lang-name">English</span></button>
+            <button class="lang-btn" data-lang="de" onclick="setLang('de')"><span class="lang-flag">🇩🇪</span><span class="lang-name">German</span></button>
+            <button class="lang-btn" data-lang="es" onclick="setLang('es')"><span class="lang-flag">🇪🇸</span><span class="lang-name">Spanish</span></button>
+            <button class="lang-btn" data-lang="pt" onclick="setLang('pt')"><span class="lang-flag">🇵🇹</span><span class="lang-name">Portuguese</span></button>
+            <button class="lang-btn" data-lang="it" onclick="setLang('it')"><span class="lang-flag">🇮🇹</span><span class="lang-name">Italian</span></button>
+            <button class="lang-btn" data-lang="fr" onclick="setLang('fr')"><span class="lang-flag">🇫🇷</span><span class="lang-name">French</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ GAME SCREEN ══ -->
+    <div class="screen" id="gameScreen">
+      <div class="timer-track"><div class="timer-fill" id="timerFill"></div></div>
+      <div class="progress-row">
+        <div class="dots" id="dots"></div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="counter" id="counter">1 / 7</div>
+          <button class="btn-exit" onclick="exitRound()" aria-label="Exit round">✕</button>
+        </div>
+      </div>
+      <div class="sentence-box">
+        <div class="sentence" id="sentence"></div>
+        <div class="translation" id="translation"></div>
+      </div>
+      <div class="timeout-msg" id="timeoutMsg"></div>
+      <div class="buttons">
+        <button class="btn-ans" id="bA"    onclick="pick('a')">A</button>
+        <button class="btn-ans" id="bAN"   onclick="pick('an')">AN</button>
+        <button class="btn-ans" id="bTHE"  onclick="pick('the')">THE</button>
+        <button class="btn-ans none-label" id="bNone" onclick="pick('none')">—</button>
+      </div>
+    </div>
+
+    <!-- ══ REVIEW SCREEN ══ -->
+    <div class="screen" id="reviewScreen">
+      <div class="review-header">
+        <div class="review-title">Round Complete!</div>
+        <div class="stars" id="stars">
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+        </div>
+        <div class="score-text" id="scoreText"></div>
+      </div>
+      <div class="review-list" id="reviewList"></div>
+      <button class="btn-cta" onclick="show('startScreen')">Next Round →</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ THEORY MODAL ══ -->
+<div class="modal-overlay" id="theoryModal" onclick="closeTheory(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="theory-head">Article Rules</div>
+      <button class="modal-close" onclick="closeTheory()" aria-label="Close theory">✕</button>
+    </div>
+    <div id="theoryTabsEn" class="theory-tabs">
+      <button class="theory-tab-btn active" data-tab="a"    onclick="setTheoryTab('a')">A</button>
+      <button class="theory-tab-btn"         data-tab="an"   onclick="setTheoryTab('an')">AN</button>
+      <button class="theory-tab-btn"         data-tab="the"  onclick="setTheoryTab('the')">THE</button>
+      <button class="theory-tab-btn"         data-tab="none" onclick="setTheoryTab('none')">∅</button>
+      <button class="theory-tab-btn"         data-tab="edge" onclick="setTheoryTab('edge')">!?</button>
+    </div>
+    <div id="theoryTabsDe" class="theory-tabs" style="display:none">
+      <button class="theory-tab-btn active" data-tab="nom"  onclick="setTheoryTab('nom')">NOM</button>
+      <button class="theory-tab-btn"         data-tab="akk"  onclick="setTheoryTab('akk')">CASES</button>
+      <button class="theory-tab-btn"         data-tab="ein"  onclick="setTheoryTab('ein')">EIN</button>
+      <button class="theory-tab-btn"         data-tab="full" onclick="setTheoryTab('full')">FULL</button>
+      <button class="theory-tab-btn"         data-tab="verb" onclick="setTheoryTab('verb')">VERB</button>
+      <button class="theory-tab-btn"         data-tab="prep" onclick="setTheoryTab('prep')">PREP</button>
+    </div>
+    <div id="theoryTabsEs" class="theory-tabs" style="display:none">
+      <button class="theory-tab-btn active" data-tab="es-gend"  onclick="setTheoryTab('es-gend')">GEND</button>
+      <button class="theory-tab-btn"         data-tab="es-def"   onclick="setTheoryTab('es-def')">DEF</button>
+      <button class="theory-tab-btn"         data-tab="es-indef" onclick="setTheoryTab('es-indef')">INDEF</button>
+      <button class="theory-tab-btn"         data-tab="es-rules" onclick="setTheoryTab('es-rules')">RULES</button>
+    </div>
+    <div id="theoryTabsPt" class="theory-tabs" style="display:none">
+      <button class="theory-tab-btn active" data-tab="pt-gend"  onclick="setTheoryTab('pt-gend')">GEND</button>
+      <button class="theory-tab-btn"         data-tab="pt-def"   onclick="setTheoryTab('pt-def')">DEF</button>
+      <button class="theory-tab-btn"         data-tab="pt-indef" onclick="setTheoryTab('pt-indef')">INDEF</button>
+      <button class="theory-tab-btn"         data-tab="pt-rules" onclick="setTheoryTab('pt-rules')">RULES</button>
+    </div>
+    <div id="theoryTabsIt" class="theory-tabs" style="display:none">
+      <button class="theory-tab-btn active" data-tab="it-gend"  onclick="setTheoryTab('it-gend')">GEND</button>
+      <button class="theory-tab-btn"         data-tab="it-def"   onclick="setTheoryTab('it-def')">DEF</button>
+      <button class="theory-tab-btn"         data-tab="it-indef" onclick="setTheoryTab('it-indef')">INDEF</button>
+      <button class="theory-tab-btn"         data-tab="it-prep"  onclick="setTheoryTab('it-prep')">PREP</button>
+    </div>
+    <div id="theoryTabsFr" class="theory-tabs" style="display:none">
+      <button class="theory-tab-btn active" data-tab="fr-gend"  onclick="setTheoryTab('fr-gend')">GEND</button>
+      <button class="theory-tab-btn"         data-tab="fr-def"   onclick="setTheoryTab('fr-def')">DEF</button>
+      <button class="theory-tab-btn"         data-tab="fr-indef" onclick="setTheoryTab('fr-indef')">INDEF</button>
+      <button class="theory-tab-btn"         data-tab="fr-part"  onclick="setTheoryTab('fr-part')">PART</button>
+    </div>
+    <div class="theory-content">
+      <div id="theoryContentDe" style="display:none">
+
+        <div class="theory-tab-pane active" id="tab-nom">
+          <div class="theory-tab-subtitle">Grammatical gender · der · die · das · die</div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Every German noun has a gender</div>
+            <div class="theory-examples">
+              <div class="ex">Masculine nouns use <span class="art">der</span> &nbsp;·&nbsp; Feminine nouns use <span class="art">die</span> &nbsp;·&nbsp; Neuter nouns use <span class="art">das</span></div>
+              <div class="ex">All plural nouns use <span class="art">die</span>, regardless of gender.</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Nominative: the subject of the sentence</div>
+            <table class="de-table">
+              <tr><th></th><th>masculine</th><th>feminine</th><th>neuter</th><th>plural</th></tr>
+              <tr><td>NOM</td><td class="art">der</td><td class="art">die</td><td class="art">das</td><td class="art">die</td></tr>
+            </table>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Examples from this level</div>
+            <div class="theory-examples">
+              <div class="ex"><span class="art">Der</span> Hund bellt laut. &nbsp;·&nbsp; <span class="art">Die</span> Katze schläft. &nbsp;·&nbsp; <span class="art">Das</span> Kind spielt draußen.</div>
+              <div class="ex"><span class="art">Die</span> Kinder sind müde. <i>(plural: always die)</i></div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Gender is not always logical. You have to learn it with the noun.</div>
+            <div class="theory-examples">
+              <div class="ex"><span class="art">das</span> Mädchen <i>(girl, neuter!)</i> &nbsp;·&nbsp; <span class="art">die</span> Sonne <i>(sun, feminine)</i> &nbsp;·&nbsp; <span class="art">der</span> Mond <i>(moon, masculine)</i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="theory-tab-pane" id="tab-akk">
+          <div class="theory-tab-subtitle">All four cases · definite articles</div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Full definite article table</div>
+            <table class="de-table">
+              <tr><th></th><th>masculine</th><th>feminine</th><th>neuter</th><th>plural</th></tr>
+              <tr><td>NOM</td><td class="art">der</td><td class="art">die</td><td class="art">das</td><td class="art">die</td></tr>
+              <tr><td>AKK</td><td class="art">den</td><td class="art">die</td><td class="art">das</td><td class="art">die</td></tr>
+              <tr><td>DAT</td><td class="art">dem</td><td class="art">der</td><td class="art">dem</td><td class="art">den</td></tr>
+              <tr><td>GEN</td><td class="art">des</td><td class="art">der</td><td class="art">des</td><td class="art">der</td></tr>
+            </table>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Key insight: only masculine changes in the accusative</div>
+            <div class="theory-examples">
+              <div class="ex">Ich sehe <span class="art">den</span> Hund. &nbsp;<i>(masc: der becomes den)</i></div>
+              <div class="ex">Ich sehe <span class="art">die</span> Frau. &nbsp;<i>(fem: die stays die)</i></div>
+              <div class="ex">Ich sehe <span class="art">das</span> Kind. &nbsp;<i>(neut: das stays das)</i></div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Genitive: expressing possession and relationship</div>
+            <div class="theory-examples">
+              <div class="ex">Das ist das Auto <span class="art">des</span> Mannes. &nbsp;<i>(the man's car, masculine genitive)</i></div>
+              <div class="ex">Das ist das Buch <span class="art">der</span> Frau. &nbsp;<i>(the woman's book, feminine genitive)</i></div>
+              <div class="ex">Das ist das Spielzeug <span class="art">des</span> Kindes. &nbsp;<i>(the child's toy, neuter genitive)</i></div>
+              <div class="ex">Masculine and neuter nouns add <b>-s</b> or <b>-es</b> in the genitive: <i>des Mann<b>es</b>, des Kind<b>es</b>, des Tag<b>s</b></i></div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Common prepositions that always take the dative</div>
+            <div class="theory-examples">
+              <div class="ex"><b>aus · bei · mit · nach · seit · von · zu · gegenüber</b></div>
+              <div class="ex">Er wohnt bei <span class="art">der</span> Familie. &nbsp;·&nbsp; Sie fährt mit <span class="art">dem</span> Auto.</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Common prepositions that always take the genitive</div>
+            <div class="theory-examples">
+              <div class="ex"><b>wegen · trotz · während · statt · innerhalb · außerhalb · aufgrund</b></div>
+              <div class="ex">Trotz <span class="art">des</span> Regens gingen wir spazieren. &nbsp;<i>(despite the rain)</i></div>
+              <div class="ex">Während <span class="art">der</span> Pause sprachen sie. &nbsp;<i>(during the break)</i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="theory-tab-pane" id="tab-ein">
+          <div class="theory-tab-subtitle">Indefinite articles · ein · eine · einen · einem · einer</div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Indefinite article table</div>
+            <table class="de-table">
+              <tr><th></th><th>masculine</th><th>feminine</th><th>neuter</th></tr>
+              <tr><td>NOM</td><td class="art">ein</td><td class="art">eine</td><td class="art">ein</td></tr>
+              <tr><td>AKK</td><td class="art">einen</td><td class="art">eine</td><td class="art">ein</td></tr>
+              <tr><td>DAT</td><td class="art">einem</td><td class="art">einer</td><td class="art">einem</td></tr>
+              <tr><td>GEN</td><td class="art">eines</td><td class="art">einer</td><td class="art">eines</td></tr>
+            </table>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Use indefinite for something unspecific or first-mentioned</div>
+            <div class="theory-examples">
+              <div class="ex">Ich suche <span class="art">eine</span> Apotheke. &nbsp;<i>(any pharmacy)</i></div>
+              <div class="ex">Das ist <span class="art">ein</span> Buch. &nbsp;<i>(introducing for the first time)</i></div>
+              <div class="ex">Er kauft <span class="art">eine</span> Jacke. &nbsp;<i>(an unspecified jacket)</i></div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Professions after "sein": always indefinite</div>
+            <div class="theory-examples">
+              <div class="ex">Sie ist <span class="art">eine</span> Lehrerin. &nbsp;·&nbsp; Er ist <span class="art">ein</span> Arzt.</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">No plural indefinite article</div>
+            <div class="theory-examples">
+              <div class="ex">Hunde sind freundlich. &nbsp;<i>(Dogs are friendly, no article)</i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="theory-tab-pane" id="tab-full">
+          <div class="theory-tab-subtitle">Definite and indefinite side by side · all four cases</div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Definite articles</div>
+            <table class="de-table">
+              <tr><th></th><th>masc</th><th>fem</th><th>neut</th><th>pl</th></tr>
+              <tr><td>NOM</td><td class="art">der</td><td class="art">die</td><td class="art">das</td><td class="art">die</td></tr>
+              <tr><td>AKK</td><td class="art">den</td><td class="art">die</td><td class="art">das</td><td class="art">die</td></tr>
+              <tr><td>DAT</td><td class="art">dem</td><td class="art">der</td><td class="art">dem</td><td class="art">den</td></tr>
+              <tr><td>GEN</td><td class="art">des</td><td class="art">der</td><td class="art">des</td><td class="art">der</td></tr>
+            </table>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Indefinite articles</div>
+            <table class="de-table">
+              <tr><th></th><th>masc</th><th>fem</th><th>neut</th></tr>
+              <tr><td>NOM</td><td class="art">ein</td><td class="art">eine</td><td class="art">ein</td></tr>
+              <tr><td>AKK</td><td class="art">einen</td><td class="art">eine</td><td class="art">ein</td></tr>
+              <tr><td>DAT</td><td class="art">einem</td><td class="art">einer</td><td class="art">einem</td></tr>
+              <tr><td>GEN</td><td class="art">eines</td><td class="art">einer</td><td class="art">eines</td></tr>
+            </table>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Definite vs indefinite: how to choose</div>
+            <div class="theory-examples">
+              <div class="ex">Use <b>definite</b> when both speaker and listener know which specific thing is meant.</div>
+              <div class="ex">Use <b>indefinite</b> when referring to something unspecific or introducing it for the first time.</div>
+              <div class="ex">Er ruft <span class="art">den</span> Chef an. <i>(his specific boss)</i> &nbsp;·&nbsp; Er kauft <span class="art">einen</span> Mantel. <i>(any coat)</i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="theory-tab-pane" id="tab-verb">
+          <div class="theory-tab-subtitle">Verbs that always take the dative case</div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">These verbs govern the dative, not the accusative</div>
+            <div class="theory-examples">
+              <div class="ex"><b>danken</b>: to thank &nbsp;·&nbsp; <b>helfen</b>: to help &nbsp;·&nbsp; <b>antworten</b>: to answer</div>
+              <div class="ex"><b>folgen</b>: to follow &nbsp;·&nbsp; <b>widersprechen</b>: to contradict &nbsp;·&nbsp; <b>vertrauen</b>: to trust</div>
+              <div class="ex"><b>gehören</b>: to belong to &nbsp;·&nbsp; <b>begegnen</b>: to meet/encounter</div>
+              <div class="ex"><b>gefallen</b>: to please, to like &nbsp;·&nbsp; <b>schmecken</b>: to taste good to</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">With definite and indefinite dative</div>
+            <div class="theory-examples">
+              <div class="ex">Er hilft <span class="art">der</span> Frau. <i>(the woman, definite fem dative)</i></div>
+              <div class="ex">Er hilft <span class="art">einer</span> alten Dame. <i>(an old lady, indefinite fem dative)</i></div>
+              <div class="ex">Das Buch gehört <span class="art">dem</span> Kind. <i>(the child, definite neut dative)</i></div>
+              <div class="ex">Das Geschenk gehört <span class="art">einer</span> Schülerin. <i>(a student, indefinite fem dative)</i></div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Memory tip</div>
+            <div class="theory-examples">
+              <div class="ex">If the English sentence has "to" after the verb (give to, talk to, belong to), the German often uses the dative. But always check: not every "to" triggers dative.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="theory-tab-pane" id="tab-prep">
+          <div class="theory-tab-subtitle">Wechselpräpositionen · movement: accusative; location: dative</div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">The nine two-way prepositions</div>
+            <div class="theory-examples">
+              <div class="ex"><b>an · auf · hinter · in · neben · über · unter · vor · zwischen</b></div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">The rule: ask wo? or wohin?</div>
+            <div class="theory-examples">
+              <div class="ex"><b>Wo?</b> (Where is it?) takes the <b>dative</b> &nbsp;·&nbsp; <b>Wohin?</b> (Where is it going?) takes the <b>accusative</b></div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Movement: accusative</div>
+            <div class="theory-examples">
+              <div class="ex">Sie legt das Buch auf <span class="art">den</span> Tisch. &nbsp;<i>(she places it onto the table)</i></div>
+              <div class="ex">Das Kind läuft in <span class="art">den</span> Garten. &nbsp;<i>(running into the garden)</i></div>
+              <div class="ex">Er setzt sich an <span class="art">einen</span> Tisch. &nbsp;<i>(sits down at a table)</i></div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Location: dative</div>
+            <div class="theory-examples">
+              <div class="ex">Das Buch liegt auf <span class="art">dem</span> Tisch. &nbsp;<i>(lying on the table)</i></div>
+              <div class="ex">Das Kind spielt in <span class="art">dem</span> Garten. &nbsp;<i>(playing in the garden)</i></div>
+              <div class="ex">Er sitzt an <span class="art">einem</span> Tisch. &nbsp;<i>(sitting at a table)</i></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="theoryContentEs" style="display:none">
+
+        <div class="theory-tab-pane active" id="tab-es-gend">
+          <div class="theory-tab-subtitle">Grammatical gender · masculine · feminine</div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">All Spanish nouns are either masculine or feminine</div>
+            <div class="theory-examples">
+              <div class="ex">Masculine: <span class="art">el</span> libro <i>(book)</i>, <span class="art">el</span> perro <i>(dog)</i>, <span class="art">el</span> sol <i>(sun)</i></div>
+              <div class="ex">Feminine: <span class="art">la</span> casa <i>(house)</i>, <span class="art">la</span> luna <i>(moon)</i>, <span class="art">la</span> ciudad <i>(city)</i></div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Endings that signal gender</div>
+            <div class="theory-examples">
+              <div class="ex"><b>Usually masculine:</b> -o <i>(libro, banco)</i>, -or <i>(color, valor)</i>, -ón <i>(camión)</i></div>
+              <div class="ex"><b>Usually feminine:</b> -a <i>(mesa, ventana)</i>, -ción / -sión <i>(canción, tensión)</i>, -dad / -tad <i>(ciudad, libertad)</i>, -tud <i>(actitud)</i></div>
+              <div class="ex"><b>Exceptions exist:</b> <span class="art">el</span> día <i>(day, masc)</i>, <span class="art">la</span> mano <i>(hand, fem)</i>, <span class="art">el</span> problema <i>(masc)</i></div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Special rule: stressed <b>a-</b> feminine nouns use <span class="art">el</span> in singular</div>
+            <div class="theory-examples">
+              <div class="ex"><span class="art">el</span> agua <i>(water)</i>, <span class="art">el</span> hambre <i>(hunger)</i>, <span class="art">el</span> área <i>(area)</i>, but still feminine</div>
+              <div class="ex">Plural reverts: <span class="art">las</span> aguas, <span class="art">las</span> áreas. Adjectives stay feminine: <i>el agua fría</i>.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="theory-tab-pane" id="tab-es-def">
+          <div class="theory-tab-subtitle">Definite articles · el · la · los · las</div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Definite article table</div>
+            <table class="de-table">
+              <tr><th></th><th>masculine</th><th>feminine</th></tr>
+              <tr><td>singular</td><td class="art">el</td><td class="art">la</td></tr>
+              <tr><td>plural</td><td class="art">los</td><td class="art">las</td></tr>
+            </table>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Use definite when referring to something specific or known</div>
+            <div class="theory-examples">
+              <div class="ex"><span class="art">El</span> libro está en la mesa. <i>(The book is on the table, specific)</i></div>
+              <div class="ex"><span class="art">Los</span> perros son leales. <i>(Dogs are loyal, as a category)</i></div>
+              <div class="ex">Me duele <span class="art">la</span> cabeza. <i>(My head hurts; body parts use the definite article)</i></div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Mandatory contractions</div>
+            <div class="theory-examples">
+              <div class="ex">a and el contract to give <span class="art">al</span> &nbsp;·&nbsp; Voy <span class="art">al</span> mercado. <i>(NOT "a el mercado")</i></div>
+              <div class="ex">de and el contract to give <span class="art">del</span> &nbsp;·&nbsp; Vengo <span class="art">del</span> trabajo. <i>(NOT "de el trabajo")</i></div>
+              <div class="ex">No contraction with <b>ella / ellos</b>: <i>Hablo de ella. Depende de ellos.</i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="theory-tab-pane" id="tab-es-indef">
+          <div class="theory-tab-subtitle">Indefinite articles · un · una · unos · unas</div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Indefinite article table</div>
+            <table class="de-table">
+              <tr><th></th><th>masculine</th><th>feminine</th></tr>
+              <tr><td>singular</td><td class="art">un</td><td class="art">una</td></tr>
+              <tr><td>plural</td><td class="art">unos</td><td class="art">unas</td></tr>
+            </table>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Use indefinite for something unspecific or first-mentioned</div>
+            <div class="theory-examples">
+              <div class="ex">Busco <span class="art">un</span> apartamento. <i>(any apartment)</i></div>
+              <div class="ex">Hay <span class="art">una</span> farmacia cerca. <i>(a pharmacy nearby, first mention)</i></div>
+              <div class="ex">Vi <span class="art">unos</span> pájaros en el jardín. <i>(some birds)</i></div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Plural <span class="art">unos / unas</span> means "some" or "a few"</div>
+            <div class="theory-examples">
+              <div class="ex">Tengo <span class="art">unos</span> libros para ti. <i>(I have some books for you)</i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="theory-tab-pane" id="tab-es-rules">
+          <div class="theory-tab-subtitle">When not to use an article</div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Professions after <b>ser</b>: no article when unmodified</div>
+            <div class="theory-examples">
+              <div class="ex">Soy <span class="noart">∅</span> médico. &nbsp;·&nbsp; Es <span class="noart">∅</span> profesora. <i>(stating a role, no article)</i></div>
+              <div class="ex"><i>But with an adjective:</i> Es <span class="art">una</span> buena profesora. <i>(she is a good teacher)</i></div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Days of the week with <b>ser</b></div>
+            <div class="theory-examples">
+              <div class="ex">Hoy es <span class="noart">∅</span> lunes. <i>(Today is Monday, no article)</i></div>
+              <div class="ex"><span class="art">El</span> lunes voy al dentista. <i>(On Monday I'm going to the dentist, definite)</i></div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Languages and nationalities after <b>hablar / ser</b></div>
+            <div class="theory-examples">
+              <div class="ex">Hablo <span class="noart">∅</span> español. &nbsp;·&nbsp; Estudio <span class="noart">∅</span> francés. <i>(no article)</i></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="theoryContentPt" style="display:none">
+
+        <div class="theory-tab-pane active" id="tab-pt-gend">
+          <div class="theory-tab-subtitle">Grammatical gender · masculine · feminine</div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">All Portuguese nouns are masculine or feminine</div>
+            <div class="theory-examples">
+              <div class="ex">Masculine: <span class="art">o</span> livro <i>(book)</i>, <span class="art">o</span> cão <i>(dog)</i>, <span class="art">o</span> sol <i>(sun)</i></div>
+              <div class="ex">Feminine: <span class="art">a</span> casa <i>(house)</i>, <span class="art">a</span> lua <i>(moon)</i>, <span class="art">a</span> cidade <i>(city)</i></div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Endings that signal gender</div>
+            <div class="theory-examples">
+              <div class="ex"><b>Usually masculine:</b> -o <i>(livro, banco)</i>, -or <i>(amor, calor)</i>, -ão <i>(caminhão)</i></div>
+              <div class="ex"><b>Usually feminine:</b> -a <i>(mesa, janela)</i>, -ção / -são <i>(canção, tensão)</i>, -dade / -tade <i>(cidade, liberdade)</i>, -tude <i>(atitude)</i></div>
+              <div class="ex"><b>Exceptions:</b> <span class="art">o</span> dia <i>(day, masc)</i>, <span class="art">a</span> mão <i>(hand, fem)</i>, <span class="art">o</span> problema <i>(masc)</i></div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Proper names often take a definite article in Portuguese</div>
+            <div class="theory-examples">
+              <div class="ex"><span class="art">O</span> João chegou. &nbsp;·&nbsp; <span class="art">A</span> Maria está aqui. <i>(common in Brazilian Portuguese)</i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="theory-tab-pane" id="tab-pt-def">
+          <div class="theory-tab-subtitle">Definite articles · o · a · os · as</div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Definite article table</div>
+            <table class="de-table">
+              <tr><th></th><th>masculine</th><th>feminine</th></tr>
+              <tr><td>singular</td><td class="art">o</td><td class="art">a</td></tr>
+              <tr><td>plural</td><td class="art">os</td><td class="art">as</td></tr>
+            </table>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Contractions with prepositions (mandatory)</div>
+            <table class="de-table">
+              <tr><th>prep</th><th>with o</th><th>with a</th><th>with os</th><th>with as</th></tr>
+              <tr><td>de</td><td class="art">do</td><td class="art">da</td><td class="art">dos</td><td class="art">das</td></tr>
+              <tr><td>em</td><td class="art">no</td><td class="art">na</td><td class="art">nos</td><td class="art">nas</td></tr>
+              <tr><td>a</td><td class="art">ao</td><td class="art">à</td><td class="art">aos</td><td class="art">às</td></tr>
+              <tr><td>por</td><td class="art">pelo</td><td class="art">pela</td><td class="art">pelos</td><td class="art">pelas</td></tr>
+            </table>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Examples</div>
+            <div class="theory-examples">
+              <div class="ex">Vim <span class="art">do</span> trabalho. <i>(I came from work: de and o give do)</i></div>
+              <div class="ex">Estou <span class="art">no</span> escritório. <i>(I'm in the office: em and o give no)</i></div>
+              <div class="ex">Vou <span class="art">ao</span> mercado. <i>(I'm going to the market: a and o give ao)</i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="theory-tab-pane" id="tab-pt-indef">
+          <div class="theory-tab-subtitle">Indefinite articles · um · uma · uns · umas</div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Indefinite article table</div>
+            <table class="de-table">
+              <tr><th></th><th>masculine</th><th>feminine</th></tr>
+              <tr><td>singular</td><td class="art">um</td><td class="art">uma</td></tr>
+              <tr><td>plural</td><td class="art">uns</td><td class="art">umas</td></tr>
+            </table>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Use indefinite for something unspecific or first-mentioned</div>
+            <div class="theory-examples">
+              <div class="ex">Preciso de <span class="art">um</span> apartamento. <i>(any apartment)</i></div>
+              <div class="ex">Há <span class="art">uma</span> farmácia perto. <i>(a pharmacy nearby)</i></div>
+              <div class="ex">Vi <span class="art">uns</span> pássaros no jardim. <i>(some birds; uns/umas means "some")</i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="theory-tab-pane" id="tab-pt-rules">
+          <div class="theory-tab-subtitle">When not to use an article</div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Professions after <b>ser</b>: no article when unmodified</div>
+            <div class="theory-examples">
+              <div class="ex">Sou <span class="noart">∅</span> médico. &nbsp;·&nbsp; Ela é <span class="noart">∅</span> professora. <i>(stating a role)</i></div>
+              <div class="ex"><i>But with an adjective:</i> Ela é <span class="art">uma</span> boa professora.</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Languages and nationalities</div>
+            <div class="theory-examples">
+              <div class="ex">Falo <span class="noart">∅</span> português. &nbsp;·&nbsp; Estudo <span class="noart">∅</span> francês.</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Brazilian vs European Portuguese</div>
+            <div class="theory-examples">
+              <div class="ex">European Portuguese tends to omit the article more before proper names and in some fixed expressions where Brazilian Portuguese uses one.</div>
+              <div class="ex">BP: <span class="art">A</span> Maria chegou. &nbsp;·&nbsp; EP: <span class="noart">∅</span> Maria chegou.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="theoryContentIt" style="display:none">
+
+        <div class="theory-tab-pane active" id="tab-it-gend">
+          <div class="theory-tab-subtitle">Grammatical gender · masculine · feminine</div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">All Italian nouns are masculine or feminine</div>
+            <div class="theory-examples">
+              <div class="ex">Masculine: <span class="art">il</span> libro <i>(book)</i>, <span class="art">il</span> cane <i>(dog)</i>, <span class="art">il</span> sole <i>(sun)</i></div>
+              <div class="ex">Feminine: <span class="art">la</span> casa <i>(house)</i>, <span class="art">la</span> luna <i>(moon)</i>, <span class="art">la</span> città <i>(city)</i></div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Noun endings and plurals</div>
+            <div class="theory-examples">
+              <div class="ex"><b>Masculine -o to -i:</b> libro / libri, amico / amici</div>
+              <div class="ex"><b>Feminine -a to -e:</b> casa / case, ragazza / ragazze</div>
+              <div class="ex"><b>Either gender -e to -i:</b> <span class="art">il</span> fiore / fiori &nbsp;·&nbsp; <span class="art">la</span> chiave / chiavi</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Endings that reliably signal gender</div>
+            <div class="theory-examples">
+              <div class="ex"><b>Usually masculine:</b> -ore <i>(dottore, professore, colore)</i>, -iere <i>(portiere, cavaliere)</i>, -ismo <i>(capitalismo)</i></div>
+              <div class="ex"><b>Usually feminine:</b> -ione <i>(canzone, nazione, tensione)</i>, -tà / -tù <i>(città, virtù, invariable)</i>, -ice <i>(attrice, pittrice)</i></div>
+              <div class="ex"><b>Variable -ista:</b> can be either gender: <span class="art">il</span> / <span class="art">la</span> pianista, <span class="art">il</span> / <span class="art">la</span> artista</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Exceptions to learn</div>
+            <div class="theory-examples">
+              <div class="ex"><span class="art">il</span> problema, <span class="art">il</span> tema, <span class="art">il</span> sistema <i>(Greek-origin words ending in -ma are masculine)</i></div>
+              <div class="ex"><span class="art">la</span> mano <i>(hand, feminine despite -o)</i> &nbsp;·&nbsp; <span class="art">il</span> cinema, <span class="art">il</span> sofa <i>(masculine despite -a)</i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="theory-tab-pane" id="tab-it-def">
+          <div class="theory-tab-subtitle">Definite articles · il · lo · la · l' · i · gli · le</div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Which definite article to use: it depends on the first sound of the noun</div>
+            <table class="de-table">
+              <tr><th>context</th><th>masc sg</th><th>masc pl</th><th>fem sg</th><th>fem pl</th></tr>
+              <tr><td>most consonants</td><td class="art">il</td><td class="art">i</td><td class="art">la</td><td class="art">le</td></tr>
+              <tr><td>s and consonant, z, gn, ps…</td><td class="art">lo</td><td class="art">gli</td><td class="art">la</td><td class="art">le</td></tr>
+              <tr><td>vowel</td><td class="art">l'</td><td class="art">gli</td><td class="art">l'</td><td class="art">le</td></tr>
+            </table>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Examples</div>
+            <div class="theory-examples">
+              <div class="ex"><span class="art">il</span> libro, <span class="art">i</span> libri &nbsp;·&nbsp; <span class="art">la</span> casa, <span class="art">le</span> case</div>
+              <div class="ex"><span class="art">lo</span> studente, <span class="art">gli</span> studenti &nbsp;·&nbsp; <span class="art">lo</span> zaino, <span class="art">gli</span> zaini</div>
+              <div class="ex"><span class="art">l'</span>amico, <span class="art">gli</span> amici &nbsp;·&nbsp; <span class="art">l'</span>amica, <span class="art">le</span> amiche</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="theory-tab-pane" id="tab-it-indef">
+          <div class="theory-tab-subtitle">Indefinite articles · un · uno · una · un'</div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Indefinite articles follow the same sound-based rules as the definite</div>
+            <table class="de-table">
+              <tr><th>context</th><th>masculine</th><th>feminine</th></tr>
+              <tr><td>most consonants</td><td class="art">un</td><td class="art">una</td></tr>
+              <tr><td>s and consonant, z, gn, ps…</td><td class="art">uno</td><td class="art">una</td></tr>
+              <tr><td>vowel</td><td class="art">un</td><td class="art">un'</td></tr>
+            </table>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Examples</div>
+            <div class="theory-examples">
+              <div class="ex"><span class="art">un</span> libro <i>(a book)</i> &nbsp;·&nbsp; <span class="art">uno</span> studente <i>(a student)</i> &nbsp;·&nbsp; <span class="art">uno</span> zaino <i>(a backpack)</i></div>
+              <div class="ex"><span class="art">una</span> casa <i>(a house)</i> &nbsp;·&nbsp; <span class="art">un'</span>amica <i>(a friend, feminine form before vowel)</i></div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">No plural indefinite article: use <span class="art">alcuni / alcune</span> for "some"</div>
+            <div class="theory-examples">
+              <div class="ex"><span class="art">alcuni</span> libri <i>(some books, masc)</i> &nbsp;·&nbsp; <span class="art">alcune</span> case <i>(some houses, fem)</i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="theory-tab-pane" id="tab-it-prep">
+          <div class="theory-tab-subtitle">Preposizioni articolate · prepositions fuse with the article</div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">The most common prepositions combine with the definite article</div>
+            <table class="de-table">
+              <tr><th></th><th>il</th><th>lo</th><th>la</th><th>l'</th><th>i</th><th>gli</th><th>le</th></tr>
+              <tr><td>di</td><td class="art">del</td><td class="art">dello</td><td class="art">della</td><td class="art">dell'</td><td class="art">dei</td><td class="art">degli</td><td class="art">delle</td></tr>
+              <tr><td>a</td><td class="art">al</td><td class="art">allo</td><td class="art">alla</td><td class="art">all'</td><td class="art">ai</td><td class="art">agli</td><td class="art">alle</td></tr>
+              <tr><td>in</td><td class="art">nel</td><td class="art">nello</td><td class="art">nella</td><td class="art">nell'</td><td class="art">nei</td><td class="art">negli</td><td class="art">nelle</td></tr>
+              <tr><td>su</td><td class="art">sul</td><td class="art">sullo</td><td class="art">sulla</td><td class="art">sull'</td><td class="art">sui</td><td class="art">sugli</td><td class="art">sulle</td></tr>
+            </table>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Examples</div>
+            <div class="theory-examples">
+              <div class="ex">Il libro <span class="art">del</span> professore. <i>(the professor's book: di and il give del)</i></div>
+              <div class="ex">Vado <span class="art">al</span> cinema. <i>(I'm going to the cinema: a and il give al)</i></div>
+              <div class="ex">Abito <span class="art">nel</span> centro. <i>(I live in the centre: in and il give nel)</i></div>
+              <div class="ex">Il libro è <span class="art">sulla</span> tavola. <i>(The book is on the table: su and la give sulla)</i></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="theoryContentFr" style="display:none">
+
+        <div class="theory-tab-pane active" id="tab-fr-gend">
+          <div class="theory-tab-subtitle">Grammatical gender · masculine · feminine</div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">All French nouns are masculine or feminine</div>
+            <div class="theory-examples">
+              <div class="ex">Masculine: <span class="art">le</span> livre <i>(book)</i>, <span class="art">le</span> chien <i>(dog)</i>, <span class="art">le</span> soleil <i>(sun)</i></div>
+              <div class="ex">Feminine: <span class="art">la</span> maison <i>(house)</i>, <span class="art">la</span> lune <i>(moon)</i>, <span class="art">la</span> liberté <i>(freedom)</i></div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Endings that often signal gender</div>
+            <div class="theory-examples">
+              <div class="ex"><b>Usually masculine:</b> -eau <i>(gâteau, tableau)</i>, -isme <i>(capitalisme)</i>, -age <i>(voyage, fromage)</i>, -ment <i>(gouvernement)</i></div>
+              <div class="ex"><b>Usually feminine:</b> -ion <i>(nation, décision)</i>, -ure <i>(voiture, culture)</i>, -ée <i>(idée, journée)</i>, -ance / -ence <i>(chance, patience)</i>, -té <i>(liberté, beauté)</i></div>
+              <div class="ex"><b>Note:</b> These are tendencies, not rules. Gender must ultimately be memorized with the noun.</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">H aspiré vs H muet</div>
+            <div class="theory-examples">
+              <div class="ex"><b>H muet</b> (silent h): elision and liaison apply normally: <span class="art">l'</span>heure, <span class="art">l'</span>homme, <span class="art">l'</span>hôpital</div>
+              <div class="ex"><b>H aspiré</b> (aspirate h): no elision, no liaison: <span class="art">le</span> héros, <span class="art">la</span> honte, <span class="art">le</span> hibou, <span class="art">le</span> haricot</div>
+              <div class="ex">There is no reliable rule. Words with h aspiré must be memorized.</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Notable exceptions</div>
+            <div class="theory-examples">
+              <div class="ex">Masculine despite -e ending: <span class="art">le</span> musée, <span class="art">le</span> lycée, <span class="art">le</span> problème, <span class="art">le</span> silence</div>
+              <div class="ex">Feminine despite "masculine" patterns: <span class="art">la</span> plage, <span class="art">la</span> page, <span class="art">la</span> nage</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="theory-tab-pane" id="tab-fr-def">
+          <div class="theory-tab-subtitle">le · la · l' · les, with the contractions au / aux / du / des</div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Definite article forms</div>
+            <div class="theory-examples">
+              <table class="de-table">
+                <tr><th></th><th>Masculine</th><th>Feminine</th><th>Before vowel / h muet</th><th>Plural</th></tr>
+                <tr><td>Definite</td><td class="art">le</td><td class="art">la</td><td class="art">l'</td><td class="art">les</td></tr>
+              </table>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Mandatory contractions</div>
+            <div class="theory-examples">
+              <div class="ex"><span class="art">à</span> and <span class="art">le</span> give <span class="art">au</span> &nbsp;·&nbsp; Il va <span class="art">au</span> cinéma. <i>(never "à le")</i></div>
+              <div class="ex"><span class="art">à</span> and <span class="art">les</span> give <span class="art">aux</span> &nbsp;·&nbsp; Elle parle <span class="art">aux</span> étudiants.</div>
+              <div class="ex"><span class="art">de</span> and <span class="art">le</span> give <span class="art">du</span> &nbsp;·&nbsp; Il revient <span class="art">du</span> travail. <i>(never "de le")</i></div>
+              <div class="ex"><span class="art">de</span> and <span class="art">les</span> give <span class="art">des</span> &nbsp;·&nbsp; Elle revient <span class="art">des</span> États-Unis.</div>
+              <div class="ex">No contraction with <span class="art">la</span> or <span class="art">l'</span>: à <span class="art">la</span> gare, à <span class="art">l'</span>école, de <span class="art">la</span> ville, de <span class="art">l'</span>eau.</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">When to use the definite article</div>
+            <div class="theory-examples">
+              <div class="ex"><b>Known / specific referent:</b> <span class="art">Le</span> livre que je lis est intéressant. <i>(the book I'm reading)</i></div>
+              <div class="ex"><b>Generic statements:</b> <span class="art">La</span> liberté est précieuse. <i>(freedom in general)</i></div>
+              <div class="ex"><b>Countries, languages, mountains:</b> <span class="art">La</span> France, <span class="art">le</span> Japon, <span class="art">le</span> français, <span class="art">les</span> Alpes</div>
+              <div class="ex"><b>Body parts:</b> Elle a <span class="art">les</span> yeux bleus. <i>(she has blue eyes)</i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="theory-tab-pane" id="tab-fr-indef">
+          <div class="theory-tab-subtitle">un · une · des, with negation pas de</div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Indefinite article forms</div>
+            <div class="theory-examples">
+              <table class="de-table">
+                <tr><th></th><th>Masculine</th><th>Feminine</th><th>Plural</th></tr>
+                <tr><td>Indefinite</td><td class="art">un</td><td class="art">une</td><td class="art">des</td></tr>
+              </table>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Usage</div>
+            <div class="theory-examples">
+              <div class="ex"><b>First mention / unspecified:</b> J'ai <span class="art">un</span> chien. <i>(I have a dog, any dog)</i></div>
+              <div class="ex"><b>Plural "some":</b> Elle achète <span class="art">des</span> fleurs. <i>(she buys some flowers, an unspecified number)</i></div>
+              <div class="ex"><b>Professions after être / devenir:</b> no article: Il est <span class="art">∅</span> médecin. Elle devient <span class="art">∅</span> avocate.</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Negation: un/une/des changes to de / d'</div>
+            <div class="theory-examples">
+              <div class="ex">J'ai <span class="art">un</span> chien. becomes Je n'ai pas <span class="art">de</span> chien. <i>(not "pas un chien")</i></div>
+              <div class="ex">Il a <span class="art">des</span> amis. becomes Il n'a pas <span class="art">d'</span>amis. <i>(d' before a vowel)</i></div>
+              <div class="ex"><b>Exception:</b> With être, the article is kept in negation: Ce n'est pas <span class="art">un</span> problème.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="theory-tab-pane" id="tab-fr-part">
+          <div class="theory-tab-subtitle">Partitive articles · du · de la · de l' · des</div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Partitive article forms</div>
+            <div class="theory-examples">
+              <table class="de-table">
+                <tr><th></th><th>Masculine</th><th>Feminine</th><th>Before vowel / h muet</th><th>Plural</th></tr>
+                <tr><td>Partitive</td><td class="art">du</td><td class="art">de la</td><td class="art">de l'</td><td class="art">des</td></tr>
+              </table>
+              <div class="ex">Note: <span class="art">du</span> is formed by contracting de and le.</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">When to use the partitive</div>
+            <div class="theory-examples">
+              <div class="ex">The partitive expresses an unspecified or uncountable quantity: "some" of something.</div>
+              <div class="ex">Je bois <span class="art">du</span> café. <i>(some coffee, not a specific amount)</i></div>
+              <div class="ex">Elle mange <span class="art">de la</span> soupe. <i>(some soup)</i></div>
+              <div class="ex">Il boit <span class="art">de l'</span>eau. <i>(some water, starts with a vowel)</i></div>
+              <div class="ex">Tu fais <span class="art">du</span> sport ? <i>(do you do any sport?)</i></div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Partitive: de after negation and quantity expressions</div>
+            <div class="theory-examples">
+              <div class="ex"><b>Negation:</b> Je bois <span class="art">du</span> café. becomes Je ne bois pas <span class="art">de</span> café. <i>("pas de", never "pas du")</i></div>
+              <div class="ex"><b>d' before vowel:</b> Il n'a pas <span class="art">d'</span>argent. <i>(not "pas de l'argent")</i></div>
+              <div class="ex"><b>Quantity expressions:</b> beaucoup <span class="art">de</span> lait, trop <span class="art">de</span> travail, assez <span class="art">de</span> temps. The article disappears entirely after quantity words.</div>
+              <div class="ex"><b>ne…que (only):</b> Je ne mange que <span class="art">des</span> légumes. The article is <i>kept</i> after ne…que.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="theoryContentEn">
+
+        <div class="theory-tab-pane active" id="tab-a">
+          <div class="theory-tab-subtitle">First mention · jobs · descriptions · consonant sounds</div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">First mention: introducing something for the first time</div>
+            <div class="theory-examples">
+              <div class="ex">I saw <span class="art">a</span> dog yesterday. &nbsp; She bought <span class="art">a</span> dress. &nbsp; I need <span class="art">a</span> pen.</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Jobs: stating what someone does</div>
+            <div class="theory-examples">
+              <div class="ex">She is <span class="art">a</span> teacher. &nbsp; He works as <span class="art">a</span> nurse. &nbsp; She wants to be <span class="art">a</span> doctor.</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Descriptions: one of many, nothing specific</div>
+            <div class="theory-examples">
+              <div class="ex">He is <span class="art">a</span> good student. &nbsp; It was <span class="art">a</span> beautiful day. &nbsp; That's <span class="art">a</span> great idea.</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Before consonant sounds</div>
+            <div class="theory-examples">
+              <div class="ex"><span class="art">a</span> dog, <span class="art">a</span> car, <span class="art">a</span> book, <span class="art">a</span> student</div>
+              <div class="ex">Watch out: some vowel-spelled words have a consonant sound.</div>
+              <div class="ex"><span class="art">a</span> university <i>(/juː/)</i>, <span class="art">a</span> European, <span class="art">a</span> useful tip, <span class="art">a</span> one-way street <i>(/wʌn/)</i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="theory-tab-pane" id="tab-an">
+          <div class="theory-tab-subtitle">Same uses as A, but before a vowel sound</div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Same contexts as A: first mention, jobs, descriptions</div>
+            <div class="theory-examples">
+              <div class="ex">She is <span class="art">an</span> engineer. &nbsp; I saw <span class="art">an</span> elephant. &nbsp; That's <span class="art">an</span> interesting idea.</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Before vowel sounds (a, e, i, o, u)</div>
+            <div class="theory-examples">
+              <div class="ex"><span class="art">an</span> apple, <span class="art">an</span> egg, <span class="art">an</span> idea, <span class="art">an</span> orange, <span class="art">an</span> umbrella</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Silent 'h': the h is not pronounced, so it sounds like a vowel</div>
+            <div class="theory-examples">
+              <div class="ex"><span class="art">an</span> hour, <span class="art">an</span> honest person, <span class="art">an</span> heir</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">It's about <b>sound</b>, not spelling</div>
+            <div class="theory-examples">
+              <div class="ex">"umbrella": u sounds like /ʌ/ (vowel), so we use <span class="art">an</span> umbrella</div>
+              <div class="ex">"university": u sounds like /juː/ (consonant), so we use <span class="art">a</span> university</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="theory-tab-pane" id="tab-the">
+          <div class="theory-tab-subtitle">Second mention · specific · common places · superlatives · instruments</div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Second mention: once introduced, both people know which one</div>
+            <div class="theory-examples">
+              <div class="ex">I saw <span class="art">a</span> dog. <span class="art">The</span> dog was huge.</div>
+              <div class="ex">She bought <span class="art">a</span> dress. <span class="art">The</span> dress was red.</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Specific things: shared context makes it clear which one</div>
+            <div class="theory-examples">
+              <div class="ex">Close <span class="art">the</span> door. &nbsp; Pass <span class="art">the</span> salt. &nbsp; Did you return <span class="art">the</span> book I lent you?</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Common places: familiar locations in daily life</div>
+            <div class="theory-examples">
+              <div class="ex">go to <span class="art">the</span> cinema, <span class="art">the</span> bank, <span class="art">the</span> supermarket, <span class="art">the</span> gym, <span class="art">the</span> park</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Superlatives</div>
+            <div class="theory-examples">
+              <div class="ex">He is <span class="art">the</span> best player. &nbsp; It's <span class="art">the</span> most popular song.</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Musical instruments (when playing)</div>
+            <div class="theory-examples">
+              <div class="ex">She plays <span class="art">the</span> piano. &nbsp; He plays <span class="art">the</span> guitar. &nbsp; She took up <span class="art">the</span> violin.</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Unique things · ordinal numbers · geographic features</div>
+            <div class="theory-examples">
+              <div class="ex"><span class="art">the</span> sun, <span class="art">the</span> moon &nbsp;·&nbsp; on <span class="art">the</span> second floor &nbsp;·&nbsp; <span class="art">the</span> Amazon, <span class="art">the</span> Alps</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Noun made specific by a following phrase or clause</div>
+            <div class="theory-examples">
+              <div class="ex"><span class="art">the</span> life <i>he chose</i> &nbsp;·&nbsp; <span class="art">the</span> silence <i>in the room</i> &nbsp;·&nbsp; <span class="art">the</span> beauty <i>of the view</i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="theory-tab-pane" id="tab-none">
+          <div class="theory-tab-subtitle">General meaning · meals · time · TV · languages · next and last</div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">General meaning: a whole category or concept</div>
+            <div class="theory-examples">
+              <div class="ex"><span class="noart">∅</span> Dolphins are intelligent. &nbsp; <span class="noart">∅</span> Music moves people. &nbsp; <span class="noart">∅</span> Time heals all wounds.</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Meals</div>
+            <div class="theory-examples">
+              <div class="ex">have <span class="noart">∅</span> breakfast, at <span class="noart">∅</span> lunch, after <span class="noart">∅</span> dinner, skip <span class="noart">∅</span> supper</div>
+              <div class="ex"><i>But:</i> <span class="art">The</span> dinner <i>she cooked</i> was amazing. <i>(specific: the)</i></div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Years, months and days</div>
+            <div class="theory-examples">
+              <div class="ex">in <span class="noart">∅</span> 2024, in <span class="noart">∅</span> March, on <span class="noart">∅</span> Monday, on <span class="noart">∅</span> Friday morning</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">TV: the medium, not the device</div>
+            <div class="theory-examples">
+              <div class="ex">watch <span class="noart">∅</span> TV, on <span class="noart">∅</span> TV, see it on <span class="noart">∅</span> television</div>
+              <div class="ex"><i>But:</i> Turn off <span class="art">the</span> TV. <i>(the physical device: the)</i></div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Languages and school subjects</div>
+            <div class="theory-examples">
+              <div class="ex">speaks <span class="noart">∅</span> French, studies <span class="noart">∅</span> economics, teaches <span class="noart">∅</span> history, loves <span class="noart">∅</span> jazz</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Next and last: no article with these time expressions</div>
+            <div class="theory-examples">
+              <div class="ex"><span class="noart">∅</span> next Monday, <span class="noart">∅</span> last week, <span class="noart">∅</span> next year, <span class="noart">∅</span> last month</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Institutions for purpose · fixed expressions</div>
+            <div class="theory-examples">
+              <div class="ex">go to <span class="noart">∅</span> school, <span class="noart">∅</span> church, <span class="noart">∅</span> prison &nbsp;·&nbsp; at <span class="noart">∅</span> home, at <span class="noart">∅</span> work, by <span class="noart">∅</span> car</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="theory-tab-pane" id="tab-edge">
+          <div class="theory-tab-subtitle">Same noun, different article, different meaning</div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Purpose (∅) vs Physical building (the)</div>
+            <div class="theory-examples">
+              <div class="ex">go to <span class="noart">∅</span> school <i>(to study)</i> &nbsp;·&nbsp; go to <span class="art">the</span> school <i>(the building)</i></div>
+              <div class="ex">go to <span class="noart">∅</span> prison <i>(punished)</i> &nbsp;·&nbsp; go to <span class="art">the</span> prison <i>(visit)</i></div>
+              <div class="ex">in <span class="noart">∅</span> hospital <i>(patient)</i> &nbsp;·&nbsp; in <span class="art">the</span> hospital <i>(visitor)</i></div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Abstract concept (∅) vs Defined instance (the)</div>
+            <div class="theory-examples">
+              <div class="ex"><span class="noart">∅</span> Life is short. &nbsp;·&nbsp; <span class="art">The</span> life <i>he chose</i> was full of adventure.</div>
+              <div class="ex"><span class="noart">∅</span> Beauty is skin deep. &nbsp;·&nbsp; <span class="art">The</span> beauty <i>of the view</i> left everyone speechless.</div>
+              <div class="ex"><span class="noart">∅</span> Music moves people. &nbsp;·&nbsp; <span class="art">The</span> music <i>at the party</i> was loud.</div>
+            </div>
+          </div>
+          <div class="theory-rule">
+            <div class="theory-rule-head">Activity (∅) vs Location (the)</div>
+            <div class="theory-examples">
+              <div class="ex">at <span class="noart">∅</span> sea <i>(sailing)</i> &nbsp;·&nbsp; at <span class="art">the</span> sea <i>(by the coast)</i></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      </div><!-- /theoryContentEn -->
+    </div>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
