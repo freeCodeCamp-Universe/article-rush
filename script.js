@@ -4,9 +4,12 @@ function toggleTheme() {
   document.documentElement.setAttribute('data-theme', next);
   localStorage.setItem('theme', next);
   document.querySelector('#themeToggle span').textContent = next === 'light' ? '☾' : '☀';
+  document.getElementById('themeToggle').setAttribute('aria-label', `Switch to ${next === 'light' ? 'dark' : 'light'} mode`);
 }
 document.querySelector('#themeToggle span').textContent =
   document.documentElement.getAttribute('data-theme') === 'light' ? '☾' : '☀';
+document.getElementById('themeToggle').setAttribute('aria-label',
+  `Switch to ${document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light'} mode`);
 
 // ── ACCESSIBILITY INIT ──
 function initTheoryTabs() {
@@ -2603,7 +2606,7 @@ function openTheory() {
   document.querySelector('.skip-link').inert = true;
   document.querySelector('.wrap').inert = true;
   setTimeout(() => {
-    const firstBtn = document.querySelector('#theoryModal .theory-tab-btn');
+    const firstBtn = document.querySelector('#theoryModal .theory-tab-btn.active');
     if (firstBtn) firstBtn.focus();
   }, 50);
 }
@@ -2740,15 +2743,23 @@ function buildDots() {
     const d = document.createElement('li');
     d.className = 'dot' + (i === 0 ? ' active' : '');
     d.id = 'dot' + i;
+    d.setAttribute('aria-label', `Question ${i + 1}: ${i === 0 ? 'current' : 'pending'}`);
     c.appendChild(d);
   }
 }
 
+const DOT_LABELS = { correct: 'correct', wrong: 'wrong', timeout: 'timed out' };
 function setDot(i, cls) {
   const d = document.getElementById('dot' + i);
-  if (d) d.className = 'dot ' + cls;
+  if (d) {
+    d.className = 'dot ' + cls;
+    d.setAttribute('aria-label', `Question ${i + 1}: ${DOT_LABELS[cls] || cls}`);
+  }
   const n = document.getElementById('dot' + (i + 1));
-  if (n) n.classList.add('active');
+  if (n) {
+    n.classList.add('active');
+    n.setAttribute('aria-label', `Question ${i + 2}: current`);
+  }
 }
 
 function showQ() {
@@ -2785,6 +2796,7 @@ function showQ() {
     btnIds[val] = id;
     const b = document.getElementById(id);
     b.removeAttribute('aria-disabled');
+    b.removeAttribute('aria-label');
     b.className = val === 'none' ? 'btn-ans none-label' : 'btn-ans';
     b.textContent = val === 'none' ? '—' : LANG === 'en' ? val.toUpperCase() : val;
     b.onclick = () => pick(val);
@@ -2851,11 +2863,15 @@ function pick(choice) {
 
   if (ok) {
     sfxCorrect();
-    document.getElementById(btnIds[choice]).classList.add('correct');
+    const okBtn = document.getElementById(btnIds[choice]);
+    okBtn.classList.add('correct');
+    okBtn.setAttribute('aria-label', `${label(choice)} — your answer, correct`);
     document.getElementById('answerStatus').textContent = 'Correct';
   } else {
     sfxWrong();
-    document.getElementById(btnIds[choice]).classList.add('wrong');
+    const badBtn = document.getElementById(btnIds[choice]);
+    badBtn.classList.add('wrong');
+    badBtn.setAttribute('aria-label', `${label(choice)} — your answer, wrong`);
     revealCorrect(item.a);
     document.getElementById('answerStatus').textContent = `Wrong — correct answer: ${label(item.a)}`;
   }
@@ -2866,7 +2882,9 @@ function pick(choice) {
 }
 
 function revealCorrect(a) {
-  document.getElementById(btnIds[a]).classList.add('reveal');
+  const btn = document.getElementById(btnIds[a]);
+  btn.classList.add('reveal');
+  btn.setAttribute('aria-label', `${label(a)} — correct answer`);
 }
 
 function disableAll() {
