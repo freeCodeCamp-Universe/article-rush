@@ -37,7 +37,7 @@ body {
 
 .wrap { width: 100%; max-width: 580px; }
 
-.logo { text-align: center; margin-bottom: 18px; }
+.logo { text-align: center; margin-bottom: 18px; position: relative; }
 .logo h1 {
   font-size: 2rem;
   font-weight: 700;
@@ -318,6 +318,9 @@ body {
   border-top: 1px solid var(--gray-75);
 }
 .lang-picker { display: flex; gap: 6px; }
+@media (max-width: 480px) {
+  .lang-picker { display: grid; grid-template-columns: repeat(3, 1fr); }
+}
 .lang-btn {
   flex: 1;
   display: flex;
@@ -507,3 +510,55 @@ body {
   font-weight: 700; text-transform: uppercase; font-size: 0.65rem;
 }
 .de-table td.art { background: transparent; border-color: var(--gray-75); }
+
+/* ── THEME TOGGLE ── */
+.btn-theme {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: none;
+  border: 1px solid var(--gray-75);
+  border-radius: 4px;
+  color: var(--gray-45);
+  font-size: 0.83rem;
+  cursor: pointer;
+  padding: 3px 8px;
+  line-height: 1.4;
+  transition: border-color 0.12s, color 0.12s;
+}
+.btn-theme:hover { border-color: var(--gray-15); color: var(--gray-15); }
+.btn-theme:focus-visible { outline: 2px solid var(--blue-mid); outline-offset: 2px; }
+
+/* ── LIGHT THEME ── */
+[data-theme="light"] {
+  --gray-00: #0a0a23;
+  --gray-10: #1b1b32;
+  --gray-15: #3b3b4f;
+  --gray-45: #5c5c6e;
+  --gray-75: #c4c4cc;
+  --gray-80: #e4e4ea;
+  --gray-85: #f0f0f4;
+  --gray-90: #ffffff;
+  --blue-light: #1971c2;
+}
+[data-theme="light"] .modal-overlay { background: rgba(0, 0, 0, 0.4); }
+[data-theme="light"] .btn-ans.correct,
+[data-theme="light"] .btn-ans.wrong,
+[data-theme="light"] .btn-ans.reveal { color: #0a0a23; }
+[data-theme="light"] .theory-tab-btn[data-tab="a"].active,
+[data-theme="light"] .theory-tab-btn[data-tab="nom"].active,
+[data-theme="light"] .theory-tab-btn[data-tab$="-gend"].active { background: #fff8e1; }
+[data-theme="light"] .theory-tab-btn[data-tab="an"].active,
+[data-theme="light"] .theory-tab-btn[data-tab="akk"].active,
+[data-theme="light"] .theory-tab-btn[data-tab$="-def"].active { background: #e3f2fd; }
+[data-theme="light"] .theory-tab-btn[data-tab="the"].active,
+[data-theme="light"] .theory-tab-btn[data-tab="ein"].active,
+[data-theme="light"] .theory-tab-btn[data-tab$="-indef"].active { background: #f0fdf4; }
+[data-theme="light"] .theory-tab-btn[data-tab="none"].active,
+[data-theme="light"] .theory-tab-btn[data-tab="full"].active,
+[data-theme="light"] .theory-tab-btn[data-tab$="-rules"].active,
+[data-theme="light"] .theory-tab-btn[data-tab$="-prep"].active,
+[data-theme="light"] .theory-tab-btn[data-tab$="-part"].active { background: #faf5ff; }
+[data-theme="light"] .theory-tab-btn[data-tab="edge"].active,
+[data-theme="light"] .theory-tab-btn[data-tab="verb"].active { background: #fff7ed; }
+[data-theme="light"] .theory-tab-btn[data-tab="prep"].active { background: #e0f2fe; }

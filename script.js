@@ -1,3 +1,13 @@
+// ── THEME ──
+function toggleTheme() {
+  const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  document.getElementById('themeToggle').textContent = next === 'light' ? '☾' : '☀';
+}
+document.getElementById('themeToggle').textContent =
+  document.documentElement.getAttribute('data-theme') === 'light' ? '☾' : '☀';
+
 // ── SOUND ENGINE ──
 let _actx = null;
 function actx() {
