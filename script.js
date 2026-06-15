@@ -3,19 +3,58 @@ function toggleTheme() {
   const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
   document.documentElement.setAttribute('data-theme', next);
   localStorage.setItem('theme', next);
-  document.getElementById('themeToggle').textContent = next === 'light' ? '☾' : '☀';
+  document.querySelector('#themeToggle span').textContent = next === 'light' ? '☾' : '☀';
 }
-document.getElementById('themeToggle').textContent =
+document.querySelector('#themeToggle span').textContent =
   document.documentElement.getAttribute('data-theme') === 'light' ? '☾' : '☀';
+
+// ── ACCESSIBILITY INIT ──
+function initTheoryTabs() {
+  document.querySelectorAll('.theory-tabs').forEach(tablist => {
+    tablist.setAttribute('role', 'tablist');
+    tablist.querySelectorAll('.theory-tab-btn').forEach(btn => {
+      btn.setAttribute('role', 'tab');
+      btn.setAttribute('aria-selected', btn.classList.contains('active') ? 'true' : 'false');
+      btn.setAttribute('tabindex', btn.classList.contains('active') ? '0' : '-1');
+      btn.id = 'tabbtn-' + btn.dataset.tab;
+      btn.setAttribute('aria-controls', 'tab-' + btn.dataset.tab);
+    });
+  });
+  document.querySelectorAll('.theory-tab-pane').forEach(pane => {
+    pane.setAttribute('role', 'tabpanel');
+    pane.setAttribute('tabindex', '0');
+    const key = pane.id.replace(/^tab-/, '');
+    const ctrl = document.getElementById('tabbtn-' + key);
+    if (ctrl) pane.setAttribute('aria-labelledby', ctrl.id);
+  });
+  document.querySelectorAll('.de-table').forEach(table => {
+    table.querySelectorAll('th').forEach(th => {
+      if (th.textContent.trim() && !th.getAttribute('scope'))
+        th.setAttribute('scope', 'col');
+    });
+    table.querySelectorAll('tr td:first-child:not([class])').forEach(td => {
+      const th = document.createElement('th');
+      th.setAttribute('scope', 'row');
+      th.innerHTML = td.innerHTML;
+      td.parentNode.replaceChild(th, td);
+    });
+  });
+}
+initTheoryTabs();
+document.querySelectorAll('.cefr-btn, .time-btn, .lang-btn').forEach(b =>
+  b.setAttribute('aria-pressed', b.classList.contains('sel') ? 'true' : 'false')
+);
 
 // ── SOUND ENGINE ──
 let _actx = null;
+let SFX = true;
 function actx() {
   if (!_actx) _actx = new (window.AudioContext || window.webkitAudioContext)();
   if (_actx.state === 'suspended') _actx.resume();
   return _actx;
 }
 function tone(freq, dur, type = 'sine', vol = 0.28, freqEnd) {
+  if (!SFX) return;
   const c = actx(), o = c.createOscillator(), g = c.createGain();
   o.connect(g); g.connect(c.destination);
   o.type = type;
@@ -906,13 +945,13 @@ const BANKS = {
     { t: "___ chicas cantan juntas.",               a: "las",  opts: ["los","las","unos","unas"],   l: 1, tr: "The girls sing together.",                    e: "Chicas (girls) is feminine plural. The definite feminine plural article is 'las'." },
     { t: "___ tiendas cierran a las ocho.",         a: "las",  opts: ["los","las","unos","unas"],   l: 1, tr: "The shops close at eight.",                   e: "Tiendas (shops) is feminine plural. The definite feminine plural article is 'las'." },
     { t: "Necesito ___ bolígrafo azul.",            a: "un",   opts: ["un","una","el","la"],        l: 1, tr: "I need a blue pen.",                          e: "Bolígrafo (pen) is masculine. The indefinite masculine article 'un' introduces an unspecified pen." },
-    { t: "Hay ___ coche aparcado allí.",            a: "un",   opts: ["un","una","el","la"],        l: 1, tr: "There is a car parked there.",                e: "Coche (car) is masculine. After 'hay' (there is/are), the indefinite article is used. Masculine singular is 'un'." },
+    { t: "Hay ___ carro estacionado allí.",          a: "un",   opts: ["un","una","el","la"],        l: 1, tr: "There is a car parked there.",                e: "Carro (car) is masculine. After 'hay' (there is/are), the indefinite article is used. Masculine singular is 'un'." },
     { t: "Veo ___ pájaro en el árbol.",             a: "un",   opts: ["un","una","el","la"],        l: 1, tr: "I can see a bird in the tree.",               e: "Pájaro (bird) is masculine. The indefinite article 'un' introduces an unspecified bird seen for the first time." },
     { t: "Quiero ___ vaso de agua.",                a: "un",   opts: ["un","una","el","la"],        l: 1, tr: "I want a glass of water.",                    e: "Vaso (glass) is masculine. The indefinite article 'un' is used because it refers to any glass, not a specific one." },
     { t: "Él tiene ___ trabajo nuevo.",             a: "un",   opts: ["un","una","el","la"],        l: 1, tr: "He has a new job.",                           e: "Trabajo (job) is masculine. The indefinite article 'un' introduces new, unspecified information." },
     { t: "Compré ___ libro muy interesante.",       a: "un",   opts: ["un","una","el","la"],        l: 1, tr: "I bought a very interesting book.",           e: "Libro (book) is masculine. The indefinite article 'un' is used because the book is being introduced for the first time." },
     { t: "Tengo ___ hermano mayor.",                a: "un",   opts: ["un","una","el","la"],        l: 1, tr: "I have an older brother.",                    e: "Hermano (brother) is masculine. The indefinite article 'un' introduces a family member for the first time." },
-    { t: "Vive en ___ piso muy pequeño.",           a: "un",   opts: ["un","una","el","la"],        l: 1, tr: "He lives in a very small apartment.",              e: "Piso (apartment) is masculine. The indefinite article 'un' is used because no specific apartment has been mentioned before." },
+    { t: "Vive en ___ apartamento muy pequeño.",     a: "un",   opts: ["un","una","el","la"],        l: 1, tr: "He lives in a very small apartment.",              e: "Apartamento (apartment) is masculine. The indefinite article 'un' is used because no specific apartment has been mentioned before." },
     { t: "Hay ___ mercado los sábados.",            a: "un",   opts: ["un","una","el","la"],        l: 1, tr: "There is a market on Saturdays.",             e: "Mercado (market) is masculine. After 'hay', the indefinite article is used. Masculine singular is 'un'." },
     { t: "Vi ___ accidente en la calle.",           a: "un",   opts: ["un","una","el","la"],        l: 1, tr: "I saw an accident in the street.",            e: "Accidente (accident) is masculine. The indefinite article 'un' introduces something not previously known to the listener." },
     { t: "Ella lee ___ novela policial.",           a: "una",  opts: ["un","una","el","la"],        l: 1, tr: "She is reading a detective novel.",           e: "Novela (novel) is feminine. The indefinite feminine article 'una' introduces an unspecified novel." },
@@ -934,7 +973,7 @@ const BANKS = {
     { t: "Voy ___ mercado esta tarde.",              a: "al",   opts: ["al","del","a","el"],         l: 2, tr: "I'm going to the market this afternoon.",      e: "Mercado is masculine. The preposition 'a' contracts with the masculine article 'el' to form 'al'. This contraction is mandatory in Spanish." },
     { t: "Vengo ___ trabajo cansado.",               a: "del",  opts: ["del","al","de","el"],        l: 2, tr: "I come home from work tired.",                 e: "Trabajo is masculine. The preposition 'de' contracts with the masculine article 'el' to form 'del'. This contraction is mandatory." },
     { t: "___ agua está muy fría.",                  a: "el",   opts: ["el","la","un","una"],        l: 2, tr: "The water is very cold.",                      e: "Agua is feminine, but its stressed first syllable begins with 'a'. Feminine nouns with a stressed initial 'a' take 'el' in the singular to avoid two adjacent 'a' sounds. The noun remains feminine. Adjectives still agree in the feminine." },
-    { t: "Ella busca ___ piso nuevo.",               a: "un",   opts: ["un","una","el","la"],        l: 2, tr: "She is looking for a new apartment.",               e: "Piso (apartment) is masculine. The indefinite article 'un' is used because it refers to any unspecific apartment, not one already known to both speaker and listener." },
+    { t: "Ella busca ___ apartamento nuevo.",         a: "un",   opts: ["un","una","el","la"],        l: 2, tr: "She is looking for a new apartment.",               e: "Apartamento (apartment) is masculine. The indefinite article 'un' is used because it refers to any unspecific apartment, not one already known to both speaker and listener." },
     { t: "Él habla ___ español con acento.",         a: "none", opts: ["none","el","un","una"],      l: 2, tr: "He speaks Spanish with an accent.",            e: "Languages do not take an article after the verb 'hablar'. This is one of several contexts in Spanish where the article is omitted." },
     { t: "El libro es ___ estudiante.",              a: "del",  opts: ["del","al","de","el"],        l: 2, tr: "The book belongs to the student.",             e: "Estudiante is masculine. The preposition 'de' contracts with the masculine article 'el' to form 'del'. This contraction is mandatory in Spanish." },
     { t: "Vamos ___ cine esta noche.",               a: "al",   opts: ["al","del","a","el"],         l: 2, tr: "We are going to the cinema tonight.",          e: "Cine is masculine. The preposition 'a' contracts with the masculine article 'el' to form 'al'." },
@@ -971,10 +1010,10 @@ const BANKS = {
     { t: "Mis hijos hablan ___ inglés en casa.",     a: "none", opts: ["none","el","un","una"],      l: 2, tr: "My children speak English at home.",           e: "Languages do not take an article after 'hablar'. This rule applies regardless of which language is named." },
     { t: "Estudia ___ japonés desde hace un año.",   a: "none", opts: ["none","el","un","una"],      l: 2, tr: "He has been studying Japanese for a year.",    e: "Languages do not take an article after 'estudiar'. The article is omitted in this construction." },
     { t: "Quiere aprender ___ árabe.",               a: "none", opts: ["none","el","un","una"],      l: 2, tr: "She wants to learn Arabic.",                   e: "Languages do not take an article after 'aprender'. The article is omitted in this construction." },
-    { t: "Hay ___ coches aparcados aquí.",           a: "unos", opts: ["unos","unas","los","las"],   l: 2, tr: "There are some cars parked here.",             e: "Coches is masculine plural, so 'unos' is the correct form. The indefinite plural 'unos' means 'some'." },
+    { t: "Hay ___ carros estacionados aquí.",         a: "unos", opts: ["unos","unas","los","las"],   l: 2, tr: "There are some cars parked here.",             e: "Carros is masculine plural, so 'unos' is the correct form. The indefinite plural 'unos' means 'some'." },
     { t: "Hay ___ flores en el jardín.",             a: "unas", opts: ["unos","unas","los","las"],   l: 2, tr: "There are some flowers in the garden.",        e: "Flores is feminine plural, so 'unas' is the correct form. The indefinite plural 'unas' means 'some'." },
     { t: "Tiene ___ problemas con su jefe.",         a: "unos", opts: ["unos","unas","los","las"],   l: 2, tr: "He has some problems with his boss.",          e: "Problemas is masculine plural, so 'unos' is the correct form. The indefinite plural 'unos' means 'some'." },
-    { t: "Compré ___ gafas de sol nuevas.",          a: "unas", opts: ["unos","unas","los","las"],   l: 2, tr: "I bought some new sunglasses.",                e: "Gafas is feminine plural. The indefinite feminine plural article 'unas' means 'some'." },
+    { t: "Compré ___ lentes de sol nuevos.",          a: "unos", opts: ["unos","unas","los","las"],   l: 2, tr: "I bought some new sunglasses.",                e: "Lentes is masculine plural. The indefinite masculine plural article 'unos' means 'some'." },
     { t: "Vi ___ pájaros en el parque.",             a: "unos", opts: ["unos","unas","los","las"],   l: 2, tr: "I saw some birds in the park.",                e: "Pájaros is masculine plural. The indefinite masculine plural article 'unos' means 'some'." },
     { t: "Salgo ___ trabajo a las seis.",            a: "del",  opts: ["del","al","de","el"],        l: 2, tr: "I leave work at six.",                         e: "Trabajo is masculine. The preposition 'de' contracts with the masculine article 'el' to form 'del'." },
     { t: "Llegaron ___ sur del país.",               a: "del",  opts: ["del","al","de","el"],        l: 2, tr: "They arrived from the south of the country.",  e: "Sur is masculine. The preposition 'de' contracts with the masculine article 'el' to form 'del'." },
@@ -984,18 +1023,18 @@ const BANKS = {
     { t: "Fue a hablar ___ director.",               a: "al",   opts: ["al","del","a","el"],         l: 2, tr: "He went to speak to the director.",            e: "Director is masculine. The preposition 'a' contracts with the masculine article 'el' to form 'al'." },
     { t: "El número ___ apartamento es el 3.",       a: "del",  opts: ["del","al","de","el"],        l: 2, tr: "The number of the apartment is 3.",                 e: "Apartamento is masculine. The preposition 'de' contracts with the masculine article 'el' to form 'del'." },
     { t: "El techo ___ edificio está pintado.",      a: "del",  opts: ["del","al","de","el"],        l: 2, tr: "The roof of the building is painted.",         e: "Edificio is masculine. The preposition 'de' contracts with the masculine article 'el' to form 'del'." },
-    { t: "Corrió ___ coche para alcanzarlo.",        a: "al",   opts: ["al","del","a","el"],         l: 2, tr: "She ran to the car to catch it.",              e: "Coche is masculine. The preposition 'a' contracts with the masculine article 'el' to form 'al'." },
+    { t: "Corrió ___ carro para alcanzarlo.",         a: "al",   opts: ["al","del","a","el"],         l: 2, tr: "She ran to the car to catch it.",              e: "Carro is masculine. The preposition 'a' contracts with the masculine article 'el' to form 'al'." },
     { t: "Ella enseña ___ chino en la universidad.", a: "none", opts: ["none","el","un","una"],      l: 2, tr: "She teaches Chinese at the university.",       e: "Languages do not take an article after 'enseñar'. The article is omitted in this construction." },
     { t: "Aprendió ___ coreano en seis meses.",       a: "none", opts: ["none","el","un","una"],      l: 2, tr: "He learned Korean in six months.",             e: "Languages do not take an article after 'aprender'. The article is always omitted." },
     { t: "Tiene ___ clientes esperando fuera.",      a: "unos", opts: ["unos","unas","los","las"],   l: 2, tr: "He has some clients waiting outside.",         e: "Clientes is masculine plural, so 'unos' is the correct form. The indefinite plural 'unos' means 'some'." },
     { t: "Trajo ___ revistas para leer.",            a: "unas", opts: ["unos","unas","los","las"],   l: 2, tr: "She brought some magazines to read.",          e: "Revistas is feminine plural. The indefinite feminine plural article 'unas' means 'some'." },
-    { t: "Tienen ___ pisos en la ciudad.",           a: "unos", opts: ["unos","unas","los","las"],   l: 2, tr: "They have some flats in the city.",            e: "Pisos is masculine plural. The indefinite masculine plural article 'unos' means 'some'." },
+    { t: "Tienen ___ apartamentos en la ciudad.",    a: "unos", opts: ["unos","unas","los","las"],   l: 2, tr: "They have some apartments in the city.",       e: "Apartamentos is masculine plural. The indefinite masculine plural article 'unos' means 'some'." },
     { t: "Hay ___ naranjas en la nevera.",           a: "unas", opts: ["unos","unas","los","las"],   l: 2, tr: "There are some oranges in the fridge.",        e: "Naranjas is feminine plural. After 'hay', the indefinite article is used. Feminine plural is 'unas'." },
     { t: "Encontré ___ monedas antiguas.",           a: "unas", opts: ["unos","unas","los","las"],   l: 2, tr: "I found some ancient coins.",                  e: "Monedas is feminine plural. The indefinite feminine plural article 'unas' means 'some'." },
     { t: "Subió ___ avión sin equipaje.",            a: "al",   opts: ["al","del","a","el"],         l: 2, tr: "He boarded the plane without luggage.",        e: "Avión is masculine. The preposition 'a' contracts with the masculine article 'el' to form 'al'." },
     { t: "Salió ___ país sin avisar.",               a: "del",  opts: ["del","al","de","el"],        l: 2, tr: "She left the country without warning.",        e: "País is masculine. The preposition 'de' contracts with the masculine article 'el' to form 'del'." },
     { t: "Fueron ___ gimnasio por la mañana.",       a: "al",   opts: ["al","del","a","el"],         l: 2, tr: "They went to the gym in the morning.",         e: "Gimnasio is masculine. The preposition 'a' contracts with the masculine article 'el' to form 'al'." },
-    { t: "El color ___ coche es rojo.",              a: "del",  opts: ["del","al","de","el"],        l: 2, tr: "The color of the car is red.",                e: "Coche is masculine. The preposition 'de' contracts with the masculine article 'el' to form 'del'." },
+    { t: "El color ___ carro es rojo.",               a: "del",  opts: ["del","al","de","el"],        l: 2, tr: "The color of the car is red.",                e: "Carro is masculine. The preposition 'de' contracts with the masculine article 'el' to form 'del'." },
     // ── B1: Professions, days of week, unos/unas ──
     { t: "Mi madre es ___ dentista.",                        a: "none", opts: ["none","una","la","un"],      l: 3, tr: "My mother is a dentist.",                          e: "Professions after 'ser' do not take an article unless modified by an adjective. 'Es dentista', not 'es una dentista'." },
     { t: "___ lunes tengo clase de piano.",                  a: "el",   opts: ["el","la","un","los"],        l: 3, tr: "On Monday I have piano class.",                    e: "Days of the week take the definite article in Spanish to indicate a specific occurrence. 'El lunes' means 'on Monday'." },
@@ -1004,7 +1043,7 @@ const BANKS = {
     { t: "Es ___ profesora muy buena.",                      a: "una",  opts: ["una","un","la","el"],        l: 3, tr: "She is a very good teacher.",                      e: "When a profession is qualified by an adjective, the indefinite article is required. Without 'muy buena', no article would be used." },
     { t: "___ viernes ella siempre sale con amigos.",        a: "los",  opts: ["los","las","el","la"],       l: 3, tr: "Every Friday she goes out with friends.",          e: "The plural definite article 'los' is used with days of the week to express habitual repetition. 'Los viernes' means 'every Friday'." },
     { t: "Tienen ___ casa bonita en el campo.",              a: "una",  opts: ["una","un","la","el"],        l: 3, tr: "They have a nice house in the countryside.",       e: "Casa is feminine. The indefinite article 'una' is used because the house has not been mentioned before." },
-    { t: "Hay ___ problema con el ordenador.",               a: "un",   opts: ["un","una","el","la"],        l: 3, tr: "There is a problem with the computer.",            e: "After 'hay' (there is/are), the indefinite article is always used. Problema is masculine, so the form is 'un'." },
+    { t: "Hay ___ problema con la computadora.",             a: "un",   opts: ["un","una","el","la"],        l: 3, tr: "There is a problem with the computer.",            e: "After 'hay' (there is/are), the indefinite article is always used. Problema is masculine, so the form is 'un'." },
     { t: "___ semanas pasan muy rápido.",                    a: "las",  opts: ["las","los","unas","unos"],   l: 3, tr: "Weeks go by very quickly.",                        e: "The definite plural article 'las' makes a generic statement. Semanas is feminine plural." },
     { t: "Compré ___ libros usados en el mercado.",          a: "unos", opts: ["unos","unas","los","las"],   l: 3, tr: "I bought some second-hand books at the market.",   e: "Libros is masculine plural, so 'unos' is the correct form. The indefinite plural 'unos' means 'some'." },
     { t: "Es ___ médico.",                                   a: "none", opts: ["none","un","el","una"],      l: 3, tr: "He is a doctor.",                                  e: "Unmodified professions after 'ser' do not take an article in Spanish. 'Es médico', not 'es un médico'." },
@@ -1224,7 +1263,7 @@ const BANKS = {
     { t: "Se queja de ___ todo.",                         a: "none", opts: ["none","el","lo","un"],      l: 6, tr: "She complains about everything.",                  e: "In the expression 'quejarse de todo' (to complain about everything), no article is used. 'Todo' here is used as an indefinite pronoun." },
     { t: "Habla de ___ política sin parar.",              a: "none", opts: ["none","la","una","el"],     l: 6, tr: "He talks about politics non-stop.",                e: "In expressions like 'hablar de política', the article is omitted when referring to politics in a general sense." },
     { t: "Estudia ___ filosofía.",                        a: "none", opts: ["none","la","una","el"],     l: 6, tr: "She studies philosophy.",                          e: "Academic disciplines omit the article after 'estudiar'. 'Estudia filosofía' is the standard form." },
-    { t: "___ río más largo de España es el Ebro.",       a: "el",   opts: ["el","la","un","una"],       l: 6, tr: "The longest river in Spain is the Ebro.",          e: "Rivers take the definite article in Spanish. 'El río' in the subject and 'el Ebro' as the name both take 'el'." },
+    { t: "___ río más largo de América del Sur es el Amazonas.", a: "el",   opts: ["el","la","un","una"],       l: 6, tr: "The longest river in South America is the Amazon.",  e: "Rivers take the definite article in Spanish. 'El río' in the subject and 'el Amazonas' as the name both take 'el'." },
     { t: "Fue ___ éxito total.",                          a: "un",   opts: ["un","una","el","none"],     l: 6, tr: "It was a total success.",                          e: "The indefinite article 'un' is used in predicate constructions to present new information. 'Fue un éxito' introduces a remarkable outcome." },
     { t: "Fue ___ fracaso total.",                        a: "un",   opts: ["un","una","el","none"],     l: 6, tr: "It was a total failure.",                          e: "The indefinite article 'un' presents the outcome as new, remarkable information. 'Fue un fracaso' is the standard form." },
     { t: "Tiene ___ razón.",                              a: "none", opts: ["none","la","una","el"],     l: 6, tr: "She is right.",                                    e: "'Tener razón' (to be right) is a fixed idiom that takes no article. Adding 'la' would change the meaning or sound unnatural." },
@@ -2467,32 +2506,65 @@ let busy    = false;
 
 function setLevel(l) {
   LEVEL = l;
-  document.querySelectorAll('.cefr-btn').forEach(b =>
-    b.classList.toggle('sel', parseInt(b.dataset.level) === l)
-  );
+  localStorage.setItem('ar_level', l);
+  document.querySelectorAll('.cefr-btn').forEach(b => {
+    const sel = parseInt(b.dataset.level) === l;
+    b.classList.toggle('sel', sel);
+    b.setAttribute('aria-pressed', sel ? 'true' : 'false');
+  });
   updateStartBtn();
 }
 
 function setTime(s) {
   SECS = s;
-  document.querySelectorAll('.time-btn').forEach(b =>
-    b.classList.toggle('sel', parseInt(b.dataset.secs) === s)
-  );
+  localStorage.setItem('ar_secs', s);
+  document.querySelectorAll('.time-btn').forEach(b => {
+    const sel = parseInt(b.dataset.secs) === s;
+    b.classList.toggle('sel', sel);
+    b.setAttribute('aria-pressed', sel ? 'true' : 'false');
+  });
 }
 
 function setLang(lang) {
   LANG = lang;
-  document.querySelectorAll('.lang-btn').forEach(b =>
-    b.classList.toggle('sel', b.dataset.lang === lang)
-  );
+  localStorage.setItem('ar_lang', lang);
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    const sel = b.dataset.lang === lang;
+    b.classList.toggle('sel', sel);
+    b.setAttribute('aria-pressed', sel ? 'true' : 'false');
+  });
   updateStartBtn();
 }
+
+function setSfx(val) {
+  SFX = val;
+  localStorage.setItem('ar_sfx', val ? '1' : '0');
+  const btn = document.getElementById('soundToggle');
+  if (!btn) return;
+  btn.setAttribute('data-sfx', val ? 'on' : 'off');
+  btn.setAttribute('aria-label', val ? 'Sound effects on' : 'Sound effects off');
+}
+function toggleSfx() {
+  setSfx(!SFX);
+}
+
+(function restoreSettings() {
+  const level = parseInt(localStorage.getItem('ar_level'));
+  const secs  = localStorage.getItem('ar_secs');
+  const lang  = localStorage.getItem('ar_lang');
+  const sfx   = localStorage.getItem('ar_sfx');
+  if (level) setLevel(level);
+  if (secs  !== null) setTime(parseInt(secs));
+  if (lang)  setLang(lang);
+  if (sfx   !== null) setSfx(sfx === '1');
+}());
 
 function updateStartBtn() {
   const hasContent = (BANKS[LANG] || []).some(s => s.l === LEVEL);
   const btn = document.querySelector('#startScreen .btn-cta');
-  btn.disabled = !hasContent;
+  btn.setAttribute('aria-disabled', hasContent ? 'false' : 'true');
   btn.textContent = hasContent ? 'Start Round →' : 'Coming Soon';
+  document.getElementById('startStatus').textContent = hasContent ? '' : 'This combination is coming soon.';
 }
 
 function shuffle(arr) {
@@ -2509,6 +2581,13 @@ function show(id) {
     const el = document.getElementById(s);
     if (el) el.classList.toggle('active', el.id === id);
   });
+  const gameActive = id === 'gameScreen';
+  ['themeToggle', 'shortcutsToggle'].forEach(btnId => {
+    document.getElementById(btnId).style.display = gameActive ? 'none' : '';
+  });
+  document.getElementById('btnBack').style.display = gameActive ? 'flex' : 'none';
+  const titles = { startScreen: 'Article Rush', gameScreen: 'Article Rush — Practice', reviewScreen: 'Article Rush — Review' };
+  document.title = titles[id] || 'Article Rush';
 }
 
 function openTheory() {
@@ -2521,20 +2600,113 @@ function openTheory() {
   });
   setTheoryTab(firstTab[LANG] || 'a');
   document.getElementById('theoryModal').classList.add('open');
+  document.querySelector('.skip-link').inert = true;
+  document.querySelector('.wrap').inert = true;
+  setTimeout(() => {
+    const firstBtn = document.querySelector('#theoryModal .theory-tab-btn');
+    if (firstBtn) firstBtn.focus();
+  }, 50);
 }
 function closeTheory(e) {
   if (e && e.target !== document.getElementById('theoryModal')) return;
   document.getElementById('theoryModal').classList.remove('open');
+  document.querySelector('.skip-link').inert = false;
+  document.querySelector('.wrap').inert = false;
+  const trigger = document.querySelector('.btn-theory-link');
+  if (trigger) trigger.focus();
+}
+
+function openShortcuts() {
+  document.getElementById('shortcutsModal').classList.add('open');
+  document.querySelector('.skip-link').inert = true;
+  document.querySelector('.wrap').inert = true;
+  setTimeout(() => document.querySelector('#shortcutsModal .modal-close').focus(), 50);
+}
+
+function closeShortcuts(e) {
+  if (e && e.target !== document.getElementById('shortcutsModal')) return;
+  document.getElementById('shortcutsModal').classList.remove('open');
+  document.querySelector('.skip-link').inert = false;
+  document.querySelector('.wrap').inert = false;
+  const trigger = document.getElementById('shortcutsToggle');
+  if (trigger) trigger.focus();
 }
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') document.getElementById('theoryModal').classList.remove('open');
+  const theoryModal    = document.getElementById('theoryModal');
+  const shortcutsModal = document.getElementById('shortcutsModal');
+  const isTheoryOpen    = theoryModal.classList.contains('open');
+  const isShortcutsOpen = shortcutsModal.classList.contains('open');
+  const isAnyOpen       = isTheoryOpen || isShortcutsOpen;
+
+  // Escape — close modal, or exit an active round
+  if (e.key === 'Escape') {
+    if (isTheoryOpen)    { closeTheory();    return; }
+    if (isShortcutsOpen) { closeShortcuts(); return; }
+    if (document.querySelector('.screen.active')?.id === 'gameScreen') { exitRound(); return; }
+  }
+
+  // ? — open shortcuts help when no modal is open and focus is not in a form control
+  if (e.key === '?' && !isAnyOpen) {
+    const tag = e.target.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) return;
+    e.preventDefault();
+    openShortcuts();
+    return;
+  }
+
+  // 1–4 — select answer during a round
+  if (!isAnyOpen && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey && /^[1-4]$/.test(e.key)) {
+    const tag = e.target.tagName;
+    if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT' && !e.target.isContentEditable) {
+      if (document.querySelector('.screen.active')?.id === 'gameScreen') {
+        const btn = document.getElementById(['bA','bAN','bTHE','bNone'][parseInt(e.key, 10) - 1]);
+        if (btn && btn.getAttribute('aria-disabled') !== 'true') { e.preventDefault(); btn.click(); }
+        return;
+      }
+    }
+  }
+
+  // Arrow keys — navigate between tabs within the active tablist
+  if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) {
+    const btn = e.target.closest('.theory-tab-btn');
+    if (!btn) return;
+    const tablist = btn.closest('.theory-tabs');
+    if (!tablist) return;
+    const tabs = Array.from(tablist.querySelectorAll('.theory-tab-btn'));
+    const idx = tabs.indexOf(btn);
+    let next;
+    if (e.key === 'ArrowRight')     next = tabs[(idx + 1) % tabs.length];
+    else if (e.key === 'ArrowLeft') next = tabs[(idx - 1 + tabs.length) % tabs.length];
+    else if (e.key === 'Home')      next = tabs[0];
+    else if (e.key === 'End')       next = tabs[tabs.length - 1];
+    if (next) { e.preventDefault(); setTheoryTab(next.dataset.tab); next.focus(); }
+    return;
+  }
+
+  // Tab — trap focus inside whichever modal is open
+  if (e.key === 'Tab' && isAnyOpen) {
+    const activeModal = isTheoryOpen ? theoryModal : shortcutsModal;
+    const focusable = Array.from(
+      activeModal.querySelectorAll('button:not([disabled]), [tabindex="0"]')
+    ).filter(el => el.offsetParent !== null);
+    if (!focusable.length) return;
+    const first = focusable[0], last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault(); last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault(); first.focus();
+    }
+  }
 });
 
 function setTheoryTab(tab) {
   sfxTab();
-  document.querySelectorAll('.theory-tab-btn').forEach(b =>
-    b.classList.toggle('active', b.dataset.tab === tab)
-  );
+  document.querySelectorAll('.theory-tab-btn').forEach(b => {
+    const active = b.dataset.tab === tab;
+    b.classList.toggle('active', active);
+    b.setAttribute('aria-selected', active ? 'true' : 'false');
+    b.setAttribute('tabindex', active ? '0' : '-1');
+  });
   document.querySelectorAll('.theory-tab-pane').forEach(p =>
     p.classList.toggle('active', p.id === 'tab-' + tab)
   );
@@ -2546,6 +2718,7 @@ function exitRound() {
   clearTimeout(timer);
   busy = true;
   show('startScreen');
+  document.querySelector('#startScreen .btn-cta').focus();
 }
 
 function startRound() {
@@ -2557,13 +2730,14 @@ function startRound() {
   buildDots();
   show('gameScreen');
   showQ();
+  document.getElementById('bA').focus();
 }
 
 function buildDots() {
   const c = document.getElementById('dots');
   c.innerHTML = '';
   for (let i = 0; i < ROUND; i++) {
-    const d = document.createElement('div');
+    const d = document.createElement('li');
     d.className = 'dot' + (i === 0 ? ' active' : '');
     d.id = 'dot' + i;
     c.appendChild(d);
@@ -2584,9 +2758,11 @@ function showQ() {
   const item = round[idx];
   document.getElementById('counter').textContent = `${idx + 1} / ${ROUND}`;
   document.getElementById('timeoutMsg').textContent = '';
+  document.getElementById('answerStatus').textContent = '';
 
   const [pre, post] = item.t.split('___');
   const box = document.getElementById('sentence');
+  box.setAttribute('lang', LANG);
   box.innerHTML = '';
   box.classList.remove('fade-in');
   void box.offsetWidth;
@@ -2608,7 +2784,7 @@ function showQ() {
     const val = opts[i];
     btnIds[val] = id;
     const b = document.getElementById(id);
-    b.disabled  = false;
+    b.removeAttribute('aria-disabled');
     b.className = val === 'none' ? 'btn-ans none-label' : 'btn-ans';
     b.textContent = val === 'none' ? '—' : LANG === 'en' ? val.toUpperCase() : val;
     b.onclick = () => pick(val);
@@ -2630,6 +2806,7 @@ function startTimer() {
   }
 
   void fill.offsetWidth;
+  fill.style.setProperty('--drain-duration', `${SECS}s`);
   fill.style.animation = `drain ${SECS}s linear forwards`;
 
   timer = setTimeout(() => {
@@ -2653,6 +2830,7 @@ function handleTimeout() {
   sfxTimeout();
   const item = round[idx];
   document.getElementById('timeoutMsg').textContent = "Time's up!";
+  document.getElementById('answerStatus').textContent = `Time's up — correct answer: ${label(item.a)}`;
   revealCorrect(item.a);
   disableAll();
   results.push({ item, userAnswer: null, correct: false, timeout: true });
@@ -2674,10 +2852,12 @@ function pick(choice) {
   if (ok) {
     sfxCorrect();
     document.getElementById(btnIds[choice]).classList.add('correct');
+    document.getElementById('answerStatus').textContent = 'Correct';
   } else {
     sfxWrong();
     document.getElementById(btnIds[choice]).classList.add('wrong');
     revealCorrect(item.a);
+    document.getElementById('answerStatus').textContent = `Wrong — correct answer: ${label(item.a)}`;
   }
 
   results.push({ item, userAnswer: choice, correct: ok, timeout: false });
@@ -2690,7 +2870,7 @@ function revealCorrect(a) {
 }
 
 function disableAll() {
-  Object.values(btnIds).forEach(id => document.getElementById(id).disabled = true);
+  Object.values(btnIds).forEach(id => document.getElementById(id).setAttribute('aria-disabled', 'true'));
 }
 
 function advance() {
@@ -2707,6 +2887,7 @@ function label(a) {
 
 function showReview() {
   show('reviewScreen');
+  document.querySelector('#reviewScreen .btn-cta').focus();
 
   const correct = results.filter(r => r.correct).length;
   const starCount = correct >= 6 ? 3 : correct >= 4 ? 2 : 1;
@@ -2737,8 +2918,8 @@ function showReview() {
       `[${r.item.a === 'none' ? '—' : LANG === 'en' ? r.item.a.toUpperCase() : r.item.a}]`);
 
     const cls = r.correct ? 'correct' : r.timeout ? 'timeout' : 'wrong';
-    const div = document.createElement('div');
-    div.className = `r-item ${cls}`;
+    const li = document.createElement('li');
+    li.className = `r-item ${cls}`;
 
     let meta = '';
     if (r.correct) {
@@ -2752,7 +2933,7 @@ function showReview() {
     }
 
     const trHtml = r.item.tr ? `<div class="r-translation">${r.item.tr}</div>` : '';
-    div.innerHTML = `<div class="r-sentence">${filled}</div>${trHtml}${meta}`;
-    list.appendChild(div);
+    li.innerHTML = `<div class="r-sentence">${filled}</div>${trHtml}${meta}`;
+    list.appendChild(li);
   });
 }

@@ -11,56 +11,73 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+<a href="#mainContent" class="skip-link">Skip to main content</a>
 <div class="wrap">
-  <div class="logo">
-    <button class="btn-theme" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme">☀</button>
+  <header class="logo">
+    <div class="header-actions">
+      <button class="btn-shortcuts" id="shortcutsToggle" onclick="openShortcuts()" aria-label="Keyboard shortcuts"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M64 112c-8.8 0-16 7.2-16 16l0 256c0 8.8 7.2 16 16 16l448 0c8.8 0 16-7.2 16-16l0-256c0-8.8-7.2-16-16-16L64 112zM0 128C0 92.7 28.7 64 64 64l448 0c35.3 0 64 28.7 64 64l0 256c0 35.3-28.7 64-64 64L64 448c-35.3 0-64-28.7-64-64L0 128zM176 320l224 0c8.8 0 16 7.2 16 16l0 16c0 8.8-7.2 16-16 16l-224 0c-8.8 0-16-7.2-16-16l0-16c0-8.8 7.2-16 16-16zm-72-72c0-8.8 7.2-16 16-16l16 0c8.8 0 16 7.2 16 16l0 16c0 8.8-7.2 16-16 16l-16 0c-8.8 0-16-7.2-16-16l0-16zm16-96l16 0c8.8 0 16 7.2 16 16l0 16c0 8.8-7.2 16-16 16l-16 0c-8.8 0-16-7.2-16-16l0-16c0-8.8 7.2-16 16-16zm64 96c0-8.8 7.2-16 16-16l16 0c8.8 0 16 7.2 16 16l0 16c0 8.8-7.2 16-16 16l-16 0c-8.8 0-16-7.2-16-16l0-16zm16-96l16 0c8.8 0 16 7.2 16 16l0 16c0 8.8-7.2 16-16 16l-16 0c-8.8 0-16-7.2-16-16l0-16c0-8.8 7.2-16 16-16zm64 96c0-8.8 7.2-16 16-16l16 0c8.8 0 16 7.2 16 16l0 16c0 8.8-7.2 16-16 16l-16 0c-8.8 0-16-7.2-16-16l0-16zm16-96l16 0c8.8 0 16 7.2 16 16l0 16c0 8.8-7.2 16-16 16l-16 0c-8.8 0-16-7.2-16-16l0-16c0-8.8 7.2-16 16-16zm64 96c0-8.8 7.2-16 16-16l16 0c8.8 0 16 7.2 16 16l0 16c0 8.8-7.2 16-16 16l-16 0c-8.8 0-16-7.2-16-16l0-16zm16-96l16 0c8.8 0 16 7.2 16 16l0 16c0 8.8-7.2 16-16 16l-16 0c-8.8 0-16-7.2-16-16l0-16c0-8.8 7.2-16 16-16zm64 96c0-8.8 7.2-16 16-16l16 0c8.8 0 16 7.2 16 16l0 16c0 8.8-7.2 16-16 16l-16 0c-8.8 0-16-7.2-16-16l0-16zm16-96l16 0c8.8 0 16 7.2 16 16l0 16c0 8.8-7.2 16-16 16l-16 0c-8.8 0-16-7.2-16-16l0-16c0-8.8 7.2-16 16-16z"/></svg></button>
+      <button class="btn-sound" id="soundToggle" onclick="toggleSfx()" aria-label="Sound effects on" data-sfx="on">
+        <span class="sfx-on" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M48 352l48 0 134.1 119.2c6.4 5.7 14.6 8.8 23.1 8.8 19.2 0 34.8-15.6 34.8-34.8l0-378.4c0-19.2-15.6-34.8-34.8-34.8-8.5 0-16.7 3.1-23.1 8.8L96 160 48 160c-26.5 0-48 21.5-48 48l0 96c0 26.5 21.5 48 48 48zM441.1 107c-10.3-8.4-25.4-6.8-33.8 3.5s-6.8 25.4 3.5 33.8C443.3 170.7 464 210.9 464 256s-20.7 85.3-53.2 111.8c-10.3 8.4-11.8 23.5-3.5 33.8s23.5 11.8 33.8 3.5c43.2-35.2 70.9-88.9 70.9-149s-27.7-113.8-70.9-149zm-60.5 74.5c-10.3-8.4-25.4-6.8-33.8 3.5s-6.8 25.4 3.5 33.8C361.1 227.6 368 241 368 256s-6.9 28.4-17.7 37.3c-10.3 8.4-11.8 23.5-3.5 33.8s23.5 11.8 33.8 3.5C402.1 312.9 416 286.1 416 256s-13.9-56.9-35.5-74.5z"/></svg></span>
+        <span class="sfx-off" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M48 352l48 0 134.1 119.2c6.4 5.7 14.6 8.8 23.1 8.8 19.2 0 34.8-15.6 34.8-34.8l0-378.4c0-19.2-15.6-34.8-34.8-34.8-8.5 0-16.7 3.1-23.1 8.8L96 160 48 160c-26.5 0-48 21.5-48 48l0 96c0 26.5 21.5 48 48 48zM367 175c-9.4 9.4-9.4 24.6 0 33.9l47 47-47 47c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l47-47 47 47c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-47-47 47-47c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-47 47-47-47c-9.4-9.4-24.6-9.4-33.9 0z"/></svg></span>
+      </button>
+      <button class="btn-theme" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme"><span aria-hidden="true">☀</span></button>
+    </div>
     <h1>Article Rush</h1>
     <p>a · an · the · nothing</p>
-  </div>
+  </header>
 
-  <div class="card">
+  <div class="card-wrap">
+  <button class="btn-back" id="btnBack" onclick="exitRound()" aria-label="Leave round"><span aria-hidden="true">←</span> Leave round</button>
+  <main class="card" id="mainContent">
 
     <!-- ══ START SCREEN ══ -->
     <div class="screen active" id="startScreen">
       <div class="start-inner">
-        <h2>Ready to rush?</h2>
-        <p>Fill in the blank with the right article before time runs out.</p>
-        <div class="rules-box">
-          <div class="rule"><span class="rule-ico">📝</span><span>7 sentences per round</span></div>
-          <div class="rule"><span class="rule-ico">⭐</span><span>Earn 1–3 stars based on your score</span></div>
-          <div class="rule"><span class="rule-ico">💡</span><span>See explanations for every mistake after each round</span></div>
-        </div>
-        <div class="time-section">
-          <div class="time-label">CEFR Level</div>
-          <div class="time-picker">
-            <button class="cefr-btn"     data-level="1" onclick="setLevel(1)">A1</button>
-            <button class="cefr-btn"     data-level="2" onclick="setLevel(2)">A2</button>
-            <button class="cefr-btn sel" data-level="3" onclick="setLevel(3)">B1</button>
-            <button class="cefr-btn"     data-level="4" onclick="setLevel(4)">B2</button>
-            <button class="cefr-btn"     data-level="5" onclick="setLevel(5)">C1</button>
-            <button class="cefr-btn"     data-level="6" onclick="setLevel(6)">C2</button>
+        <div class="start-left">
+          <div class="start-intro">
+            <h2>Ready to rush?</h2>
+            <p>Fill in the blank with the right article before time runs out.</p>
           </div>
+          <ul class="rules-box">
+            <li class="rule"><span class="rule-ico" aria-hidden="true">📝</span><span>7 sentences per round</span></li>
+            <li class="rule"><span class="rule-ico" aria-hidden="true">⭐</span><span>Earn 1–3 stars based on your score</span></li>
+            <li class="rule"><span class="rule-ico" aria-hidden="true">💡</span><span>See explanations for every mistake after each round</span></li>
+          </ul>
         </div>
-        <div class="time-section">
-          <div class="time-label">Time per sentence</div>
-          <div class="time-picker">
-            <button class="time-btn sel" data-secs="5"  onclick="setTime(5)">5 s</button>
-            <button class="time-btn"     data-secs="10" onclick="setTime(10)">10 s</button>
-            <button class="time-btn"     data-secs="15" onclick="setTime(15)">15 s</button>
-            <button class="time-btn"     data-secs="0"  onclick="setTime(0)">∞</button>
-          </div>
-        </div>
-        <button class="btn-cta" onclick="startRound()">Start Round →</button>
-        <button class="btn-theory-link" onclick="openTheory()">Article rules reference</button>
-        <div class="lang-section">
-          <div class="time-label">Practice Language</div>
-          <div class="lang-picker">
-            <button class="lang-btn sel" data-lang="en" onclick="setLang('en')"><span class="lang-flag">🇺🇸</span><span class="lang-name">English</span></button>
-            <button class="lang-btn" data-lang="de" onclick="setLang('de')"><span class="lang-flag">🇩🇪</span><span class="lang-name">German</span></button>
-            <button class="lang-btn" data-lang="es" onclick="setLang('es')"><span class="lang-flag">🇪🇸</span><span class="lang-name">Spanish</span></button>
-            <button class="lang-btn" data-lang="pt" onclick="setLang('pt')"><span class="lang-flag">🇵🇹</span><span class="lang-name">Portuguese</span></button>
-            <button class="lang-btn" data-lang="it" onclick="setLang('it')"><span class="lang-flag">🇮🇹</span><span class="lang-name">Italian</span></button>
-            <button class="lang-btn" data-lang="fr" onclick="setLang('fr')"><span class="lang-flag">🇫🇷</span><span class="lang-name">French</span></button>
+        <div class="start-right">
+          <fieldset class="time-section">
+            <legend class="time-label">CEFR Level</legend>
+            <div class="time-picker">
+              <button class="cefr-btn"     data-level="1" onclick="setLevel(1)">A1</button>
+              <button class="cefr-btn"     data-level="2" onclick="setLevel(2)">A2</button>
+              <button class="cefr-btn sel" data-level="3" onclick="setLevel(3)">B1</button>
+              <button class="cefr-btn"     data-level="4" onclick="setLevel(4)">B2</button>
+              <button class="cefr-btn"     data-level="5" onclick="setLevel(5)">C1</button>
+              <button class="cefr-btn"     data-level="6" onclick="setLevel(6)">C2</button>
+            </div>
+          </fieldset>
+          <fieldset class="time-section">
+            <legend class="time-label">Time per sentence</legend>
+            <div class="time-picker">
+              <button class="time-btn sel" data-secs="5"  onclick="setTime(5)">5 s</button>
+              <button class="time-btn"     data-secs="10" onclick="setTime(10)">10 s</button>
+              <button class="time-btn"     data-secs="15" onclick="setTime(15)">15 s</button>
+              <button class="time-btn"     data-secs="0"  onclick="setTime(0)">off</button>
+            </div>
+          </fieldset>
+          <button class="btn-cta" onclick="startRound()">Start Round →</button>
+          <p id="startStatus" class="sr-only" role="status"></p>
+          <button class="btn-theory-link" onclick="openTheory()">Article rules reference</button>
+          <div class="lang-section" role="group" aria-labelledby="langPickerLabel">
+            <div class="time-label" id="langPickerLabel">Practice Language</div>
+            <div class="lang-picker">
+              <button class="lang-btn sel" data-lang="en" onclick="setLang('en')"><span class="lang-flag" aria-hidden="true">🇺🇸</span><span class="lang-name">English</span></button>
+              <button class="lang-btn" data-lang="de" onclick="setLang('de')"><span class="lang-flag" aria-hidden="true">🇩🇪</span><span class="lang-name">German</span></button>
+              <button class="lang-btn" data-lang="es" onclick="setLang('es')"><span class="lang-flag" aria-hidden="true">🇪🇸</span><span class="lang-name">Spanish</span></button>
+              <button class="lang-btn" data-lang="pt" onclick="setLang('pt')"><span class="lang-flag" aria-hidden="true">🇵🇹</span><span class="lang-name">Portuguese</span></button>
+              <button class="lang-btn" data-lang="it" onclick="setLang('it')"><span class="lang-flag" aria-hidden="true">🇮🇹</span><span class="lang-name">Italian</span></button>
+              <button class="lang-btn" data-lang="fr" onclick="setLang('fr')"><span class="lang-flag" aria-hidden="true">🇫🇷</span><span class="lang-name">French</span></button>
+            </div>
           </div>
         </div>
       </div>
@@ -70,49 +87,49 @@
     <div class="screen" id="gameScreen">
       <div class="timer-track"><div class="timer-fill" id="timerFill"></div></div>
       <div class="progress-row">
-        <div class="dots" id="dots"></div>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div class="counter" id="counter">1 / 7</div>
-          <button class="btn-exit" onclick="exitRound()" aria-label="Exit round">✕</button>
-        </div>
+        <ul class="dots" id="dots" aria-label="Question progress"></ul>
+        <div class="counter" id="counter" aria-live="polite" aria-atomic="true">1 / 7</div>
       </div>
       <div class="sentence-box">
         <div class="sentence" id="sentence"></div>
         <div class="translation" id="translation"></div>
       </div>
-      <div class="timeout-msg" id="timeoutMsg"></div>
+      <div class="timeout-msg" id="timeoutMsg" role="status"></div>
       <div class="buttons">
         <button class="btn-ans" id="bA"    onclick="pick('a')">A</button>
         <button class="btn-ans" id="bAN"   onclick="pick('an')">AN</button>
         <button class="btn-ans" id="bTHE"  onclick="pick('the')">THE</button>
         <button class="btn-ans none-label" id="bNone" onclick="pick('none')">—</button>
       </div>
+      <p id="answerStatus" class="sr-only" aria-live="polite" aria-atomic="true"></p>
     </div>
 
     <!-- ══ REVIEW SCREEN ══ -->
     <div class="screen" id="reviewScreen">
-      <div class="review-header">
-        <div class="review-title">Round Complete!</div>
-        <div class="stars" id="stars">
+      <div class="review-header" aria-live="polite" aria-atomic="true">
+        <h2 class="review-title">Round Complete!</h2>
+        <div class="stars" id="stars" aria-hidden="true">
           <span class="star">★</span>
           <span class="star">★</span>
           <span class="star">★</span>
         </div>
         <div class="score-text" id="scoreText"></div>
       </div>
-      <div class="review-list" id="reviewList"></div>
-      <button class="btn-cta" onclick="show('startScreen')">Next Round →</button>
+      <ul class="review-list" id="reviewList"></ul>
+      <button class="btn-cta" onclick="startRound()">Next Round</button>
+      <button class="btn-theory-link" onclick="show('startScreen')">Back to home</button>
     </div>
 
+  </main>
   </div>
 </div>
 
 <!-- ══ THEORY MODAL ══ -->
 <div class="modal-overlay" id="theoryModal" onclick="closeTheory(event)">
-  <div class="modal-box">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="theoryModalTitle">
     <div class="modal-header">
-      <div class="theory-head">Article Rules</div>
-      <button class="modal-close" onclick="closeTheory()" aria-label="Close theory">✕</button>
+      <h2 class="theory-head" id="theoryModalTitle">Article Rules</h2>
+      <button class="modal-close" onclick="closeTheory()" aria-label="Close theory"><span aria-hidden="true">✕</span></button>
     </div>
     <div id="theoryTabsEn" class="theory-tabs">
       <button class="theory-tab-btn active" data-tab="a"    onclick="setTheoryTab('a')">A</button>
@@ -997,6 +1014,20 @@
       </div>
       </div><!-- /theoryContentEn -->
     </div>
+  </div>
+</div>
+<!-- ══ SHORTCUTS MODAL ══ -->
+<div class="modal-overlay" id="shortcutsModal" onclick="closeShortcuts(event)">
+  <div class="modal-box shortcuts-box" role="dialog" aria-modal="true" aria-labelledby="shortcutsTitle">
+    <div class="modal-header">
+      <h2 class="theory-head" id="shortcutsTitle">Keyboard Shortcuts</h2>
+      <button class="modal-close" onclick="closeShortcuts()" aria-label="Close keyboard shortcuts"><span aria-hidden="true">✕</span></button>
+    </div>
+    <dl class="shortcuts-list">
+      <div class="shortcut-row"><dt><kbd>1</kbd>–<kbd>4</kbd></dt><dd>Select answer <span class="shortcut-ctx">during round</span></dd></div>
+      <div class="shortcut-row"><dt><kbd>Esc</kbd></dt><dd>Close panel / exit round</dd></div>
+      <div class="shortcut-row"><dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>Navigate tabs in Article Rules</dd></div>
+    </dl>
   </div>
 </div>
 <script src="script.js"></script>
